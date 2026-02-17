@@ -1,0 +1,69 @@
+/* src/index.css */
+
+:root {
+  /* --- COLORES BASE DE INTERFAZ (DARK DEFAULT) --- */
+  --color-sidebar-bg: #0B1120;
+  /* Azul casi negro */
+  --color-background-app: #161B2B;
+  /* Gris Azulado Profundo */
+  --color-surface-card: #1E2538;
+  /* Slate Medio */
+
+  /* --- COLORES DE MARCA Y ACCIÓN --- */
+  --color-primary-cobalt: #3B48CC;
+  /* Azul Cobalto */
+  --color-accent-gold: #C5A065;
+  /* Dorado Muted */
+  --color-accent-gold-hover: #D6B685;
+
+  /* --- SEMÁNTICA LEGAL --- */
+  --color-status-success: #2EA650;
+  --color-status-risk: #D64545;
+  --color-status-warning: #C5A065;
+  --color-highlight-legal: #FFF9C4;
+
+  /* --- TIPOGRAFÍA Y TEXTO (DARK DEFAULT) --- */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #94A3B8;
+  --color-text-body: #E2E8F0;
+
+  /* --- BORDES (DARK DEFAULT) --- */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+
+  /* --- FUENTES --- */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', serif;
+}
+
+:root[data-theme='light'] {
+  /* --- COLORES BASE DE INTERFAZ (LIGHT) --- */
+  --color-sidebar-bg: #FFFFFF;
+  --color-background-app: #F4F6F8;
+  --color-surface-card: #FFFFFF;
+
+  /* --- TIPOGRAFÍA Y TEXTO (LIGHT) --- */
+  --color-text-primary: #0F172A;
+  /* Slate 900 */
+  --color-text-secondary: #64748B;
+  /* Slate 500 */
+  --color-text-body: #334155;
+  /* Slate 700 */
+
+  /* --- BORDES (LIGHT) --- */
+  --border-subtle: rgba(0, 0, 0, 0.1);
+}
+
+/* Reset básico para todo el sitio */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background-app);
+  color: var(--color-text-body);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: contain;
+}

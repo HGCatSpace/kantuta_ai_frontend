@@ -1,0 +1,531 @@
+.caso-detail {
+    padding: 2.5rem 3rem;
+}
+
+/* ─── Breadcrumb ─── */
+
+.caso-detail__breadcrumb {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-accent-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+}
+
+/* ─── Header ─── */
+
+.caso-detail__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.caso-detail__header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.caso-detail__title {
+    font-family: var(--font-serif);
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.caso-detail__meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: #64748b;
+}
+
+.caso-detail__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.1875rem 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.caso-detail__badge--abierto {
+    color: #15803d;
+    background-color: #f0fdf4;
+}
+
+.caso-detail__badge--abierto::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #22c55e;
+}
+
+.caso-detail__badge--cerrado {
+    color: #1e40af;
+    background-color: #eff6ff;
+}
+
+.caso-detail__badge--cerrado::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #3b82f6;
+}
+
+.caso-detail__badge--archivado {
+    color: #92400e;
+    background-color: #fefce8;
+}
+
+.caso-detail__badge--archivado::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #f59e0b;
+}
+
+.caso-detail__last-access {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: #94a3b8;
+    font-size: 0.8125rem;
+}
+
+.caso-detail__last-access svg {
+    width: 14px;
+    height: 14px;
+}
+
+.caso-detail__new-chat-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    color: #fff;
+    background-color: var(--color-accent-gold);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.caso-detail__new-chat-btn:hover {
+    background-color: var(--color-accent-gold-hover);
+    transform: translateY(-1px);
+}
+
+.caso-detail__new-chat-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ─── Info strip ─── */
+
+.caso-detail__info-strip {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 10px;
+    border: 1px solid #e8ebf0;
+}
+
+.caso-detail__info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.caso-detail__info-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.caso-detail__info-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+/* ─── Chats table ─── */
+
+.caso-detail__table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e8ebf0;
+}
+
+.caso-detail__table thead {
+    border-bottom: 1px solid #e8ebf0;
+}
+
+.caso-detail__table th {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #64748b;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.caso-detail__table td {
+    padding: 1rem 1.25rem;
+    font-size: 0.875rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.caso-detail__table tr:last-child td {
+    border-bottom: none;
+}
+
+.caso-detail__table tbody tr {
+    transition: background-color 0.15s;
+}
+
+.caso-detail__table tbody tr:hover {
+    background-color: #fafbfc;
+}
+
+/* Chat name cell */
+
+.caso-detail__chat-name {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.caso-detail__chat-initiator {
+    margin-top: 0.125rem;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.caso-detail__chat-initiator svg {
+    width: 12px;
+    height: 12px;
+}
+
+/* Date cell */
+
+.caso-detail__chat-date {
+    font-size: 0.875rem;
+    color: #475569;
+}
+
+.caso-detail__chat-time {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.125rem;
+}
+
+/* Documents badge */
+
+.caso-detail__docs-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid #e8ebf0;
+    color: #475569;
+    background-color: #f8fafc;
+}
+
+/* Actions cell */
+
+.caso-detail__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.caso-detail__action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #94a3b8;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.caso-detail__action-btn:hover {
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+.caso-detail__action-btn--chat {
+    color: #fff;
+    background-color: var(--color-accent-gold);
+}
+
+.caso-detail__action-btn--chat:hover {
+    background-color: var(--color-accent-gold-hover);
+    color: #fff;
+}
+
+.caso-detail__action-btn--danger:hover {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+.caso-detail__action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ─── Empty & loading ─── */
+
+.caso-detail__empty {
+    text-align: center;
+    padding: 3rem 1rem !important;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.caso-detail__status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 3rem;
+    justify-content: center;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.caso-detail__status--error {
+    color: #dc2626;
+}
+
+/* ─── Modal ─── */
+
+.caso-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: caso-modal-fade-in 0.2s ease;
+}
+
+@keyframes caso-modal-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.caso-modal {
+    background: #fff;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 460px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    animation: caso-modal-slide-up 0.25s ease;
+    overflow: hidden;
+}
+
+@keyframes caso-modal-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.caso-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e8ebf0;
+}
+
+.caso-modal__title {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.caso-modal__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #94a3b8;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.caso-modal__close:hover {
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+.caso-modal__close svg {
+    width: 18px;
+    height: 18px;
+}
+
+.caso-modal__body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.caso-modal__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 0.5rem;
+}
+
+.caso-modal__label:first-child {
+    margin-top: 0;
+}
+
+.caso-modal__input,
+.caso-modal__select {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    font-family: var(--font-sans);
+    color: #0f172a;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.caso-modal__input:focus,
+.caso-modal__select:focus {
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 0 3px rgba(202, 161, 84, 0.15);
+}
+
+.caso-modal__input::placeholder {
+    color: #94a3b8;
+}
+
+.caso-modal__select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.25rem;
+}
+
+.caso-modal__error {
+    margin: 0.5rem 0 0;
+    font-size: 0.8125rem;
+    color: #dc2626;
+}
+
+.caso-modal__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.625rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e8ebf0;
+    background-color: #fafbfc;
+}
+
+.caso-modal__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.caso-modal__btn--cancel {
+    color: #64748b;
+    background-color: #e8ebf0;
+}
+
+.caso-modal__btn--cancel:hover {
+    background-color: #dde1e7;
+}
+
+.caso-modal__btn--submit {
+    color: #fff;
+    background-color: var(--color-accent-gold);
+}
+
+.caso-modal__btn--submit:hover:not(:disabled) {
+    background-color: var(--color-accent-gold-hover);
+    transform: translateY(-1px);
+}
+
+.caso-modal__btn--submit:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.caso-modal__btn--submit svg {
+    width: 14px;
+    height: 14px;
+}

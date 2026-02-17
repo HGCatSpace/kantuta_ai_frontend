@@ -1,0 +1,207 @@
+/* ─── Overlay ─── */
+
+.doc-preview-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: docPreviewFadeIn 0.2s ease;
+}
+
+@keyframes docPreviewFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ─── Modal ─── */
+
+.doc-preview-modal {
+    display: flex;
+    flex-direction: column;
+    width: 90vw;
+    max-width: 900px;
+    height: 90vh;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: docPreviewSlideUp 0.25s ease;
+}
+
+@keyframes docPreviewSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ─── Header ─── */
+
+.doc-preview__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.doc-preview__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+}
+
+.doc-preview__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: 6px;
+    color: #64748b;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+.doc-preview__close:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.doc-preview__close svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ─── Toolbar ─── */
+
+.doc-preview__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+    gap: 1rem;
+}
+
+.doc-preview__nav,
+.doc-preview__zoom {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.doc-preview__nav button,
+.doc-preview__zoom button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    border-radius: 6px;
+    color: #475569;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.doc-preview__nav button:hover:not(:disabled),
+.doc-preview__zoom button:hover:not(:disabled) {
+    background: #f1f5f9;
+}
+
+.doc-preview__nav button:disabled,
+.doc-preview__zoom button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.doc-preview__nav button svg,
+.doc-preview__zoom button svg {
+    width: 16px;
+    height: 16px;
+}
+
+.doc-preview__page-info {
+    font-size: 0.8125rem;
+    color: #475569;
+    min-width: 60px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.doc-preview__zoom-level {
+    font-size: 0.75rem;
+    color: #64748b;
+    min-width: 40px;
+    text-align: center;
+}
+
+/* ─── Body ─── */
+
+.doc-preview__body {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    background: #e2e8f0;
+}
+
+.doc-preview__body .react-pdf__Document {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.doc-preview__body .react-pdf__Page {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.doc-preview__iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 4px;
+}
+
+.doc-preview__loading,
+.doc-preview__error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.doc-preview__error {
+    color: #ef4444;
+}

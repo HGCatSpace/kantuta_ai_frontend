@@ -1,0 +1,353 @@
+.login-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── Panel Izquierdo (Branding) ─── */
+
+.login-branding {
+  display: none;
+  width: 45%;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--color-sidebar-bg);
+  padding: 3rem;
+}
+
+@media (min-width: 1024px) {
+  .login-branding {
+    display: flex;
+  }
+}
+
+.login-branding__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-branding__icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  border: 1px solid rgba(197, 160, 101, 0.35);
+  background-color: rgba(197, 160, 101, 0.08);
+}
+
+.login-branding__icon {
+  width: 36px;
+  height: 36px;
+  color: var(--color-accent-gold);
+}
+
+.login-branding__title {
+  margin-top: 1.25rem;
+  font-family: var(--font-sans);
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.025em;
+}
+
+.login-branding__tagline {
+  margin-top: 1.5rem;
+  max-width: 300px;
+  text-align: center;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.login-branding__copyright {
+  padding: 1rem 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Panel Derecho (Formulario) ─── */
+
+.login-form-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: #fff;
+}
+
+@media (min-width: 1024px) {
+  .login-form-panel {
+    width: 55%;
+  }
+}
+
+.login-form-panel__content {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .login-form-panel__content {
+    padding: 2rem 3rem;
+  }
+}
+
+.login-form-panel__inner {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Logo móvil */
+
+.login-mobile-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .login-mobile-logo {
+    display: none;
+  }
+}
+
+.login-mobile-logo__icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--color-surface-card);
+}
+
+.login-mobile-logo__icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-accent-gold);
+}
+
+.login-mobile-logo__title {
+  margin-top: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Encabezado */
+
+.login-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.login-subheading {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+/* Error */
+
+.login-form__error {
+  margin-top: 1rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--color-status-risk);
+  background-color: rgba(214, 69, 69, 0.08);
+  border: 1px solid rgba(214, 69, 69, 0.2);
+  border-radius: 8px;
+}
+
+/* Formulario */
+
+.login-form {
+  margin-top: 2rem;
+}
+
+.login-form__field {
+  margin-bottom: 1.25rem;
+}
+
+.login-form__label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.login-form__input {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  color: #0f172a;
+  background-color: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-form__input::placeholder {
+  color: #94a3b8;
+}
+
+.login-form__input:focus {
+  border-color: var(--color-primary-cobalt);
+  box-shadow: 0 0 0 3px rgba(59, 72, 204, 0.15);
+}
+
+/* Campo de contraseña */
+
+.login-form__password-wrapper {
+  position: relative;
+}
+
+.login-form__password-wrapper .login-form__input {
+  padding-right: 2.75rem;
+}
+
+.login-form__password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.login-form__password-toggle:hover {
+  color: #475569;
+}
+
+.login-form__password-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Fila recordarme + olvidé contraseña */
+
+.login-form__options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.login-form__remember {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.login-form__remember input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  accent-color: var(--color-primary-cobalt);
+  cursor: pointer;
+}
+
+.login-form__forgot {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-primary-cobalt);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.login-form__forgot:hover {
+  color: #2d38a3;
+}
+
+/* Botón */
+
+.login-form__submit {
+  display: block;
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background-color: var(--color-sidebar-bg);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.login-form__submit:hover:not(:disabled) {
+  background-color: var(--color-background-app);
+}
+
+.login-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-form__submit:focus-visible {
+  outline: 2px solid var(--color-primary-cobalt);
+  outline-offset: 2px;
+}
+
+/* Links inferiores */
+
+.login-footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  font-size: 0.875rem;
+}
+
+.login-footer-links a {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.login-footer-links a:hover {
+  color: #475569;
+}
+
+/* Copyright móvil (solo visible en pantallas pequeñas) */
+
+.login-copyright-mobile {
+  display: block;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+@media (min-width: 1024px) {
+  .login-copyright-mobile {
+    display: none;
+  }
+}

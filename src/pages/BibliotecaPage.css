@@ -1,0 +1,390 @@
+/* ==========================================
+   BibliotecaPage — BEM prefix: .biblioteca-
+   ========================================== */
+
+.biblioteca-page {
+  padding: 2.5rem 3rem;
+}
+
+/* ─── Breadcrumb ─── */
+
+.biblioteca-page__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.biblioteca-page__breadcrumb a {
+  color: #64748b;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.biblioteca-page__breadcrumb a:hover {
+  color: var(--color-primary-cobalt);
+}
+
+/* ─── Header ─── */
+
+.biblioteca-page__header {
+  margin-bottom: 1.75rem;
+}
+
+.biblioteca-page__title {
+  font-family: var(--font-serif);
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.biblioteca-page__subtitle {
+  margin-top: 0.375rem;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* ─── Section ─── */
+
+.biblioteca-page__section {
+  background-color: #fff;
+  border: 1px solid #e8ebf0;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.biblioteca-page__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.biblioteca-page__section-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.biblioteca-page__section-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ─── Search ─── */
+
+.biblioteca-page__search {
+  position: relative;
+  min-width: 200px;
+  max-width: 320px;
+}
+
+.biblioteca-page__search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.biblioteca-page__search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+  font-size: 0.8125rem;
+  font-family: var(--font-sans);
+  color: #0f172a;
+  background-color: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.biblioteca-page__search-input::placeholder {
+  color: #94a3b8;
+}
+
+.biblioteca-page__search-input:focus {
+  border-color: var(--color-primary-cobalt);
+  box-shadow: 0 0 0 3px rgba(59, 72, 204, 0.12);
+}
+
+/* ─── Sort button ─── */
+
+.biblioteca-page__sort-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  font-size: 0.8125rem;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  color: #475569;
+  background-color: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.biblioteca-page__sort-btn:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.biblioteca-page__sort-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ─── Status (loading/error) ─── */
+
+.biblioteca-page__status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  justify-content: center;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.biblioteca-page__status--error {
+  color: #dc2626;
+}
+
+/* ─── Table ─── */
+
+.biblioteca-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.biblioteca-table thead {
+  border-bottom: 1px solid #e8ebf0;
+}
+
+.biblioteca-table th {
+  padding: 0.75rem 1rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #64748b;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.biblioteca-table td {
+  padding: 0.875rem 1rem;
+  font-size: 0.8125rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.biblioteca-table tr:last-child td {
+  border-bottom: none;
+}
+
+.biblioteca-table__empty {
+  text-align: center;
+  padding: 2rem 1rem !important;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* Document cell */
+
+.biblioteca-table__doc-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.biblioteca-table__doc-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.biblioteca-table__doc-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.biblioteca-table__doc-icon--pdf {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.biblioteca-table__doc-icon--doc {
+  background-color: #eff6ff;
+  color: #3b82f6;
+}
+
+.biblioteca-table__doc-icon--other {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.biblioteca-table__doc-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Category */
+
+.biblioteca-table__categoria {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.biblioteca-table__cat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.biblioteca-table__cat-dot--contratos {
+  background-color: #22c55e;
+}
+
+.biblioteca-table__cat-dot--litigios {
+  background-color: #ef4444;
+}
+
+.biblioteca-table__cat-dot--corporativo {
+  background-color: #3b82f6;
+}
+
+.biblioteca-table__cat-dot--otros {
+  background-color: #94a3b8;
+}
+
+/* Dates */
+
+.biblioteca-table__fecha {
+  font-size: 0.8125rem;
+  color: #475569;
+  white-space: nowrap;
+}
+
+/* Action buttons */
+
+.biblioteca-table__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.biblioteca-table__action-btn:hover {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.biblioteca-table__action-btn--delete {
+  color: #f87171;
+}
+
+.biblioteca-table__action-btn--delete:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.biblioteca-table__action-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ─── Pagination ─── */
+
+.biblioteca-page__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+  padding: 0 0.25rem;
+}
+
+.biblioteca-page__pagination-info {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.03em;
+}
+
+.biblioteca-page__pagination-info span {
+  color: #334155;
+}
+
+.biblioteca-page__pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.biblioteca-page__pagination-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #475569;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.biblioteca-page__pagination-btn:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.biblioteca-page__pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.biblioteca-page__pagination-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ─── Spin animation ─── */
+
+.spin {
+  animation: biblioteca-spin 1s linear infinite;
+}
+
+@keyframes biblioteca-spin {
+  to { transform: rotate(360deg); }
+}
