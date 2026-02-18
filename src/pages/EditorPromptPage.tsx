@@ -34,8 +34,8 @@ type SectionKey = typeof SECTION_DEFS[number]['key'];
 type TabId = 'prompt' | 'fuentes';
 
 const DEFAULT_TEMP = 0.7;
-const DEFAULT_MAX_TOKENS = 2048;
 const DEFAULT_TOP_P = 0.95;
+const DEFAULT_TOP_K = 20;
 
 export default function EditorPromptPage() {
   const { idPrompt } = useParams<{ idPrompt: string }>();
@@ -63,7 +63,7 @@ export default function EditorPromptPage() {
   });
   const [temperatura, setTemperatura] = useState(DEFAULT_TEMP);
   const [topP, setTopP] = useState(DEFAULT_TOP_P);
-  const [tokensMaximos, setTokensMaximos] = useState(DEFAULT_MAX_TOKENS);
+  const [topK, setTopK] = useState(DEFAULT_TOP_K);
   const [enabledSections, setEnabledSections] = useState<Record<SectionKey, boolean>>({
     contenido_rol: true,
     contenido_tarea: true,
@@ -96,7 +96,7 @@ export default function EditorPromptPage() {
     });
     setTemperatura(prompt.temperatura);
     setTopP(prompt.top_p);
-    setTokensMaximos(prompt.tokens_maximos);
+    setTopK(prompt.top_k);
     setEnabledSections({
       contenido_rol: true,
       contenido_tarea: true,
@@ -129,7 +129,7 @@ export default function EditorPromptPage() {
       contenido_contexto: sections.contenido_contexto || null,
       temperatura,
       top_p: topP,
-      tokens_maximos: tokensMaximos,
+      top_k: topK,
       documentos_conocimiento: Array.from(selectedDocIds),
     });
   };
@@ -137,7 +137,7 @@ export default function EditorPromptPage() {
   const handleReset = () => {
     setTemperatura(DEFAULT_TEMP);
     setTopP(DEFAULT_TOP_P);
-    setTokensMaximos(DEFAULT_MAX_TOKENS);
+    setTopK(DEFAULT_TOP_K);
   };
 
   // Token estimate (rough: 1 token ~ 4 chars)
@@ -365,17 +365,17 @@ export default function EditorPromptPage() {
 
               <div className="ep-sidebar__slider-group">
                 <div className="ep-sidebar__slider-header">
-                  <span className="ep-sidebar__slider-label">Longitud Máxima</span>
-                  <span className="ep-sidebar__slider-value">{tokensMaximos.toLocaleString()}</span>
+                  <span className="ep-sidebar__slider-label">Top K</span>
+                  <span className="ep-sidebar__slider-value">{topK.toLocaleString()}</span>
                 </div>
                 <input
                   type="range"
                   className="ep-sidebar__slider"
-                  min={256}
-                  max={4096}
-                  step={64}
-                  value={tokensMaximos}
-                  onChange={(e) => setTokensMaximos(parseInt(e.target.value))}
+                  min={0}
+                  max={20}
+                  step={1}
+                  value={topK}
+                  onChange={(e) => setTopK(parseFloat(e.target.value))}
                 />
               </div>
 
