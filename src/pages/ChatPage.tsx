@@ -397,7 +397,7 @@ export default function ChatPage() {
                                                 style={{ marginLeft: 'auto' }}
                                                 onClick={() => handleContextPreview(
                                                     item.document.metadata?.source_filename as string,
-                                                    item.document.metadata?.page_label as string | number,
+                                                    (item.document.metadata?.page as number ?? 0) + 1,
                                                     item.document.metadata?.titulo as string,
                                                 )}
                                                 title="Abrir en documento"
