@@ -2,7 +2,6 @@ export interface SystemPrompt {
   id_prompt: number;
   nombre: string;
   descripcion: string | null;
-  contenido_instruccion: string;
   contenido_rol: string | null;
   contenido_tarea: string | null;
   contenido_alcances: string | null;

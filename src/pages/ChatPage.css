@@ -224,6 +224,69 @@
     font-weight: 500;
 }
 
+/* ─── Context List ─── */
+.chat-page__context-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.chat-page__context-item {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chat-page__context-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-page__context-score {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #059669;
+    background-color: #d1fae5;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.chat-page__context-page {
+    font-size: 0.6875rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.chat-page__context-content {
+    font-size: 0.8125rem;
+    color: #334155;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+.chat-page__context-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.6875rem;
+    color: #94a3b8;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 0.5rem;
+    margin-top: 0.25rem;
+}
+
 /* ─── Messages ─── */
 
 .chat-page__messages {
@@ -322,7 +385,6 @@
     border-radius: 16px;
     font-size: 0.9rem;
     line-height: 1.6;
-    white-space: pre-wrap;
     word-wrap: break-word;
 }
 
@@ -330,6 +392,7 @@
     background: linear-gradient(135deg, #3b48cc 0%, #4f55c7 100%);
     color: #fff;
     border-bottom-right-radius: 4px;
+    white-space: pre-wrap;
 }
 
 .chat-msg--assistant .chat-msg__bubble {
@@ -369,12 +432,18 @@
 
 .chat-msg__bubble ul,
 .chat-msg__bubble ol {
-    margin: 0.375em 0;
-    padding-left: 1.375em;
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+    list-style-position: outside;
 }
 
 .chat-msg__bubble li {
     margin-bottom: 0.25em;
+    line-height: 1.5;
+}
+
+.chat-msg__bubble li p {
+    margin: 0;
 }
 
 .chat-msg__bubble h1,
@@ -440,6 +509,43 @@
 
 .chat-msg--user .chat-msg__bubble a {
     color: #bfdbfe;
+}
+
+/* ─── Citations ─── */
+
+.chat-msg__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.chat-msg__citation-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background-color: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.chat-msg__citation-btn:hover {
+    background-color: #e2e8f0;
+    border-color: #94a3b8;
+    color: #1e293b;
+    transform: translateY(-1px);
+}
+
+.chat-msg__citation-btn svg {
+    color: var(--color-primary-cobalt);
 }
 
 /* ─── Input bar ─── */
@@ -637,4 +743,154 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+/* ─── Modal ─── */
+
+.chat-page__modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1.5rem;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.chat-page__modal {
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.chat-page__modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+}
+
+.chat-page__modal-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.chat-page__modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #94a3b8;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.chat-page__modal-close:hover {
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+.chat-page__modal-close svg {
+    width: 20px;
+    height: 20px;
+}
+
+.chat-page__modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.chat-page__modal-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chat-page__modal-section label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.chat-page__modal-value {
+    font-size: 0.9375rem;
+    color: #1e293b;
+    line-height: 1.5;
+}
+
+.chat-page__modal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    background-color: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.chat-page__modal-badge {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.875rem;
+    color: #0f172a;
+    font-weight: 500;
+}
+
+.chat-page__modal-code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8125rem;
+    color: #334155;
+    background-color: #f1f5f9;
+    padding: 1rem;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    line-height: 1.6;
 }

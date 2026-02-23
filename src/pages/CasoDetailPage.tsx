@@ -223,12 +223,7 @@ export default function CasoDetailPage() {
                     <span className="caso-detail__info-label">Chats activos</span>
                     <span className="caso-detail__info-value">{chats.length}</span>
                 </div>
-                <div className="caso-detail__info-item">
-                    <span className="caso-detail__info-label">Documentos</span>
-                    <span className="caso-detail__info-value">
-                        {caso.total_documentos} {caso.total_documentos === 1 ? 'archivo' : 'archivos'}
-                    </span>
-                </div>
+
                 {caso.descripcion && (
                     <div className="caso-detail__info-item" style={{ flex: 1 }}>
                         <span className="caso-detail__info-label">Descripción</span>
@@ -245,7 +240,7 @@ export default function CasoDetailPage() {
                     <tr>
                         <th>Nombre del Chat</th>
                         <th>Último Mensaje</th>
-                        <th>Documentos Vinculados</th>
+                        <th>Fecha de creación</th>
                         <th style={{ width: '100px' }}></th>
                     </tr>
                 </thead>
@@ -274,7 +269,7 @@ export default function CasoDetailPage() {
                                 </td>
                                 <td>
                                     <span className="caso-detail__docs-badge">
-                                        {caso.total_documentos} {caso.total_documentos === 1 ? 'archivo' : 'archivos'}
+                                        {formatDate(chat.fecha_creacion)}
                                     </span>
                                 </td>
                                 <td>

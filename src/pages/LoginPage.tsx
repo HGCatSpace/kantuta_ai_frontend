@@ -69,7 +69,7 @@ export default function LoginPage() {
           </p>
         </div>
         <div className="login-branding__copyright">
-          © 2024 Kantuta AI - Plataforma Legal
+          © 2026 Kantuta AI - Plataforma Legal
         </div>
       </div>
 
@@ -150,7 +150,7 @@ export default function LoginPage() {
 
         {/* Copyright solo visible en móvil */}
         <div className="login-copyright-mobile">
-          © 2026 Kantuta AI - Plataforma Legal Premium
+          © 2026 Kantuta AI - Plataforma Legal
         </div>
       </div>
     </div>

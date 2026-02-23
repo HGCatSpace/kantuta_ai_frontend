@@ -5,18 +5,19 @@ import {
     ArrowUp,
     Loader2,
     MessageSquare,
-    PlusCircle,
     FileText,
     Scale,
     User,
     X,
+    Info,
+    Database,
 } from 'lucide-react';
 import { getAgentState, streamMessage } from '../api/agentChat';
 import { getCasoDetail } from '../api/casos';
 import { getChatSession } from '../api/chatSessions';
 import { getPrompt } from '../api/prompts';
 import { getDocumentos } from '../api/documentos';
-import type { AgentMessage } from '../api/agentChat';
+import type { AgentMessage, ContextItem } from '../api/agentChat';
 import type { DocumentoConocimiento } from '../types/documento';
 import ReactMarkdown from 'react-markdown';
 import './ChatPage.css';
@@ -24,16 +25,31 @@ import './ChatPage.css';
 interface ParsedMessage {
     role: 'user' | 'assistant';
     content: string;
+    context?: ContextItem[];
 }
 
-function parseMessages(raw: AgentMessage[] | undefined): ParsedMessage[] {
+function parseMessages(raw: AgentMessage[] | undefined, globalContext?: ContextItem[]): ParsedMessage[] {
     if (!raw || !Array.isArray(raw)) return [];
-    return raw
+
+    // Convert to ParsedMessage format
+    const parsed: ParsedMessage[] = raw
         .filter((m) => m.type === 'human' || m.type === 'ai' || m.type === 'assistant')
         .map((m) => ({
             role: m.type === 'human' ? 'user' as const : 'assistant' as const,
             content: typeof m.data?.content === 'string' ? m.data.content : String(m.data?.content ?? ''),
         }));
+
+    // If we have global context from the state, attach it to the LAST assistant message
+    // This is a heuristic because the backend sends context as a separate key in the state,
+    // not embedded in the message metadata (yet).
+    if (globalContext && globalContext.length > 0 && parsed.length > 0) {
+        const lastMsg = parsed[parsed.length - 1];
+        if (lastMsg.role === 'assistant') {
+            lastMsg.context = globalContext;
+        }
+    }
+
+    return parsed;
 }
 
 const timeFormatter = new Intl.DateTimeFormat('es-BO', {
@@ -54,7 +70,10 @@ export default function ChatPage() {
     const [sending, setSending] = useState(false);
     const [localMessages, setLocalMessages] = useState<ParsedMessage[]>([]);
     const [showDocsPanel, setShowDocsPanel] = useState(false);
+    const [showContextPanel, setShowContextPanel] = useState(false);
+    const [showPromptInfo, setShowPromptInfo] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const prevMessageCountRef = useRef(0);
 
     // Fetch case info
     const { data: caso } = useQuery({
@@ -98,15 +117,18 @@ export default function ChatPage() {
     // Parse messages from agent state
     useEffect(() => {
         if (agentState?.state?.messages) {
-            setLocalMessages(parseMessages(agentState.state.messages));
+            setLocalMessages(parseMessages(agentState.state.messages, agentState.state.context));
         } else if (agentState?.status === 'empty') {
             setLocalMessages([]);
         }
     }, [agentState]);
 
-    // Auto-scroll to bottom
+    // Auto-scroll only when a new message is added, not on every streaming token
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (localMessages.length !== prevMessageCountRef.current) {
+            prevMessageCountRef.current = localMessages.length;
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
     }, [localMessages]);
 
     const handleSend = async () => {
@@ -124,22 +146,30 @@ export default function ChatPage() {
         ]);
 
         try {
-            await streamMessage(sessionId, userContent, (token) => {
-                setLocalMessages((prev) => {
-                    const updated = [...prev];
-                    const last = updated[updated.length - 1];
-                    if (last && last.role === 'assistant') {
-                        updated[updated.length - 1] = { ...last, content: last.content + token };
-                    }
-                    return updated;
-                });
-            });
+            await streamMessage(
+                sessionId,
+                userContent,
+                (token) => {
+                    setLocalMessages((prev) => {
+                        const updated = [...prev];
+                        const last = updated[updated.length - 1];
+                        if (last && last.role === 'assistant') {
+                            updated[updated.length - 1] = { ...last, content: last.content + token };
+                        }
+                        return updated;
+                    });
+                },
+                prompt
+            );
 
             // Re-fetch state to sync with server checkpoint
             const freshState = await getAgentState(sessionId);
+
+            // Explicitly update local messages with the fresh state AND context
             if (freshState.state?.messages) {
-                setLocalMessages(parseMessages(freshState.state.messages));
+                setLocalMessages(parseMessages(freshState.state.messages, freshState.state.context));
             }
+
             queryClient.invalidateQueries({ queryKey: ['chats-by-caso', numericCasoId] });
         } catch (err) {
             console.error('Error sending message:', err);
@@ -217,6 +247,14 @@ export default function ChatPage() {
                 </div>
                 <div className="chat-page__header-actions">
                     <button
+                        className={`chat-page__header-btn ${showPromptInfo ? 'chat-page__header-btn--active' : ''}`}
+                        title="Ver detalles del prompt"
+                        onClick={() => setShowPromptInfo(true)}
+                        disabled={!prompt}
+                    >
+                        <Info />
+                    </button>
+                    <button
                         className={`chat-page__header-btn ${showDocsPanel ? 'chat-page__header-btn--active' : ''}`}
                         title="Ver documentos del prompt"
                         onClick={() => setShowDocsPanel((v) => !v)}
@@ -270,6 +308,47 @@ export default function ChatPage() {
                 </div>
             )}
 
+            {/* Context Panel */}
+            {showContextPanel && agentState?.state?.context && (
+                <div className="chat-page__docs-panel">
+                    <div className="chat-page__docs-panel-header">
+                        <h3 className="chat-page__docs-panel-title">
+                            <Database size={16} />
+                            Contexto Recuperado
+                        </h3>
+                        <button
+                            className="chat-page__docs-panel-close"
+                            onClick={() => setShowContextPanel(false)}
+                        >
+                            <X size={16} />
+                        </button>
+                    </div>
+                    <div className="chat-page__context-list">
+                        {agentState.state.context.map((item, idx) => (
+                            <div className="chat-page__context-item" key={idx}>
+                                <div className="chat-page__context-header">
+                                    <span className="chat-page__context-score">
+                                        {(item.score).toFixed(4)} relevancia
+                                    </span>
+                                    {!!item.document.metadata?.page_label && (
+                                        <span className="chat-page__context-page">
+                                            Pág. {String(item.document.metadata.page_label)}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="chat-page__context-content">
+                                    {item.document.page_content}
+                                </div>
+                                <div className="chat-page__context-footer">
+                                    <FileText size={12} />
+                                    {String(item.document.metadata?.source_filename || 'Desconocido')}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Messages area */}
             <div className="chat-page__messages">
                 {localMessages.length === 0 && !sending ? (
@@ -308,7 +387,30 @@ export default function ChatPage() {
                                     <div className="chat-msg__bubble">
                                         {msg.role === 'assistant' ? (
                                             msg.content ? (
-                                                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                                <>
+                                                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                                    {msg.context && msg.context.length > 0 && (
+                                                        <div className="chat-msg__actions">
+                                                            {msg.context.map((ctx, idx) => (
+                                                                <button
+                                                                    key={idx}
+                                                                    className="chat-msg__citation-btn"
+                                                                    onClick={() => {
+                                                                        // For now, just show the context panel. 
+                                                                        // Ideally, this would open a specific modal or highlight the item.
+                                                                        setShowContextPanel(true);
+                                                                    }}
+                                                                    title={ctx.document.metadata?.source_filename as string}
+                                                                >
+                                                                    <Database size={12} />
+                                                                    {ctx.document.metadata?.titulo
+                                                                        ? `${ctx.document.metadata.titulo}, Pág. ${ctx.document.metadata.page_label}`
+                                                                        : `Fuente ${idx + 1}`}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </>
                                             ) : (
                                                 <div className="chat-msg__typing">
                                                     <span className="chat-msg__typing-dot" />
@@ -361,6 +463,55 @@ export default function ChatPage() {
                     Kantuta AI puede cometer errores. Verifique la información importante.
                 </p>
             </div>
-        </div>
+
+
+            {/* Prompt Details Modal */}
+            {
+                showPromptInfo && prompt && (
+                    <div className="chat-page__modal-overlay" onClick={() => setShowPromptInfo(false)}>
+                        <div className="chat-page__modal" onClick={(e) => e.stopPropagation()}>
+                            <div className="chat-page__modal-header">
+                                <h2 className="chat-page__modal-title">Detalles del System Prompt</h2>
+                                <button className="chat-page__modal-close" onClick={() => setShowPromptInfo(false)}>
+                                    <X />
+                                </button>
+                            </div>
+                            <div className="chat-page__modal-body">
+                                <div className="chat-page__modal-section">
+                                    <label>Nombre</label>
+                                    <div className="chat-page__modal-value">{prompt.nombre}</div>
+                                </div>
+                                {prompt.descripcion && (
+                                    <div className="chat-page__modal-section">
+                                        <label>Descripción</label>
+                                        <div className="chat-page__modal-value">{prompt.descripcion}</div>
+                                    </div>
+                                )}
+
+                                <div className="chat-page__modal-grid">
+                                    <div className="chat-page__modal-section">
+                                        <label>Temperatura</label>
+                                        <div className="chat-page__modal-badge">{prompt.temperatura}</div>
+                                    </div>
+                                    <div className="chat-page__modal-section">
+                                        <label>Top P</label>
+                                        <div className="chat-page__modal-badge">{prompt.top_p}</div>
+                                    </div>
+                                    <div className="chat-page__modal-section">
+                                        <label>Top K</label>
+                                        <div className="chat-page__modal-badge">{prompt.top_k}</div>
+                                    </div>
+                                </div>
+
+                                <div className="chat-page__modal-section">
+                                    <label>Descripción</label>
+                                    <pre className="chat-page__modal-code">{prompt.descripcion}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        </div >
     );
 }

@@ -1,4 +1,13 @@
 import apiClient from './client';
+import type { SystemPrompt } from '../types/prompt';
+
+export interface ContextItem {
+    document: {
+        page_content: string;
+        metadata: Record<string, unknown>;
+    };
+    score: number;
+}
 
 export interface AgentStateResponse {
     session_id: string;
@@ -8,6 +17,7 @@ export interface AgentStateResponse {
     next_step?: string[];
     state: {
         messages?: AgentMessage[];
+        context?: ContextItem[];
         [key: string]: unknown;
     };
 }
@@ -81,11 +91,12 @@ export async function streamMessage(
     sessionId: string,
     content: string,
     onToken: (token: string) => void,
+    system_prompt?: SystemPrompt | Record<string, unknown> | null,
 ): Promise<void> {
     const res = await fetch(`${API_BASE}/chat-agent/${sessionId}/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, system_prompt }),
     });
 
     if (!res.ok) {

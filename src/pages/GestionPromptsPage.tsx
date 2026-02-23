@@ -117,12 +117,8 @@ function VistaRapidaPrompt({
                 <td>{prompt.top_p}</td>
               </tr>
               <tr>
-                <td>Penalización de Frecuencia</td>
-                <td>{prompt.penalizacion_frecuencia}</td>
-              </tr>
-              <tr>
-                <td>Tokens Máximos</td>
-                <td>{prompt.tokens_maximos.toLocaleString()}</td>
+                <td>Top K</td>
+                <td>{prompt.top_k}</td>
               </tr>
             </tbody>
           </table>
