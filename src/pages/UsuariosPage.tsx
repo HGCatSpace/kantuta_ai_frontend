@@ -69,6 +69,29 @@ type SortMode = 'fecha_desc' | 'nombre_asc';
 type FilterRol = number | null;
 type FilterEstado = ActiveUserEnum | null;
 
+const ACCIONES_USUARIO = ['gestión de casos', 'biblioteca y consulta'];
+const ACCIONES_EXPERTO = [
+  ...ACCIONES_USUARIO,
+  'gestión de prompt',
+  'gestión de documentos para la base de conocimiento',
+];
+
+function getDefaultActionsForRol(rolNombre: string, allActions: Action[]): Set<number> {
+  const lower = rolNombre.toLowerCase();
+  if (lower.includes('admin')) {
+    return new Set(allActions.map((a) => a.id_action));
+  }
+  const targetNames = lower.includes('experto') ? ACCIONES_EXPERTO
+    : lower.includes('usuario') ? ACCIONES_USUARIO
+    : null;
+  if (!targetNames) return new Set();
+  return new Set(
+    allActions
+      .filter((a) => targetNames.some((name) => a.nombre.toLowerCase().includes(name)))
+      .map((a) => a.id_action)
+  );
+}
+
 /* ── Añadir Usuario Modal ── */
 
 function AnadirUsuarioModal({
@@ -177,7 +200,16 @@ function AnadirUsuarioModal({
             <select
               id="add-rol"
               value={idRol}
-              onChange={(e) => setIdRol(e.target.value ? Number(e.target.value) : '')}
+              onChange={(e) => {
+                const newRolId = e.target.value ? Number(e.target.value) : '';
+                setIdRol(newRolId);
+                if (newRolId !== '') {
+                  const selectedRol = roles.find((r) => r.id_rol === newRolId);
+                  if (selectedRol) setCheckedActions(getDefaultActionsForRol(selectedRol.nombre, allActions));
+                } else {
+                  setCheckedActions(new Set());
+                }
+              }}
             >
               <option value="">Sin rol</option>
               {roles.map((r) => (
@@ -322,7 +354,16 @@ function ModificarUsuarioModal({
             <select
               id="edit-rol"
               value={idRol}
-              onChange={(e) => setIdRol(e.target.value ? Number(e.target.value) : '')}
+              onChange={(e) => {
+                const newRolId = e.target.value ? Number(e.target.value) : '';
+                setIdRol(newRolId);
+                if (newRolId !== '') {
+                  const selectedRol = roles.find((r) => r.id_rol === newRolId);
+                  if (selectedRol) setCheckedActions(getDefaultActionsForRol(selectedRol.nombre, allActions));
+                } else {
+                  setCheckedActions(new Set());
+                }
+              }}
             >
               <option value="">Sin rol</option>
               {roles.map((r) => (

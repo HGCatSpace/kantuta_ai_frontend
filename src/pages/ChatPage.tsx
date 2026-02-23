@@ -11,6 +11,7 @@ import {
     X,
     Info,
     Database,
+    ChevronDown,
 } from 'lucide-react';
 import { getAgentState, streamMessage } from '../api/agentChat';
 import { getCasoDetail } from '../api/casos';
@@ -72,6 +73,16 @@ export default function ChatPage() {
     const [showDocsPanel, setShowDocsPanel] = useState(false);
     const [showContextPanel, setShowContextPanel] = useState(false);
     const [showPromptInfo, setShowPromptInfo] = useState(false);
+    const [expandedContextItems, setExpandedContextItems] = useState<Set<number>>(new Set());
+
+    const toggleContextItem = (idx: number) => {
+        setExpandedContextItems((prev) => {
+            const next = new Set(prev);
+            if (next.has(idx)) next.delete(idx);
+            else next.add(idx);
+            return next;
+        });
+    };
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const prevMessageCountRef = useRef(0);
 
@@ -324,27 +335,39 @@ export default function ChatPage() {
                         </button>
                     </div>
                     <div className="chat-page__context-list">
-                        {agentState.state.context.map((item, idx) => (
-                            <div className="chat-page__context-item" key={idx}>
-                                <div className="chat-page__context-header">
-                                    <span className="chat-page__context-score">
-                                        {(item.score).toFixed(4)} relevancia
-                                    </span>
-                                    {!!item.document.metadata?.page_label && (
-                                        <span className="chat-page__context-page">
-                                            Pág. {String(item.document.metadata.page_label)}
-                                        </span>
-                                    )}
+                        {agentState.state.context.map((item, idx) => {
+                            const isExpanded = expandedContextItems.has(idx);
+                            return (
+                                <div className="chat-page__context-item" key={idx}>
+                                    <div
+                                        className="chat-page__context-header chat-page__context-header--clickable"
+                                        onClick={() => toggleContextItem(idx)}
+                                    >
+                                        <div className="chat-page__context-header-left">
+                                            <span className="chat-page__context-score">
+                                                {(item.score).toFixed(4)} relevancia
+                                            </span>
+                                            {!!item.document.metadata?.page_label && (
+                                                <span className="chat-page__context-page">
+                                                    Pág. {String(item.document.metadata.page_label)}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <ChevronDown
+                                            size={14}
+                                            className={`chat-page__context-chevron ${isExpanded ? 'chat-page__context-chevron--open' : ''}`}
+                                        />
+                                    </div>
+                                    <div className={`chat-page__context-content ${isExpanded ? 'chat-page__context-content--expanded' : ''}`}>
+                                        {item.document.page_content}
+                                    </div>
+                                    <div className="chat-page__context-footer">
+                                        <FileText size={12} />
+                                        {String(item.document.metadata?.source_filename || 'Desconocido')}
+                                    </div>
                                 </div>
-                                <div className="chat-page__context-content">
-                                    {item.document.page_content}
-                                </div>
-                                <div className="chat-page__context-footer">
-                                    <FileText size={12} />
-                                    {String(item.document.metadata?.source_filename || 'Desconocido')}
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}
