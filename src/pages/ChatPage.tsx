@@ -391,7 +391,7 @@ export default function ChatPage() {
                                     <div className="chat-page__context-footer">
                                         <FileText size={12} />
                                         <span>{String(item.document.metadata?.source_filename || 'Desconocido')}</span>
-                                        {item.document.metadata?.source_filename && (
+                                        {!!item.document.metadata?.source_filename && (
                                             <button
                                                 className="chat-msg__citation-btn"
                                                 style={{ marginLeft: 'auto' }}
