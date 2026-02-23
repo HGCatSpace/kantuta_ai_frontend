@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowUp, ChevronDown, Database, FileText, Loader2, Scale, User, X } from 'lucide-react';
+import { ArrowUp, ChevronDown, Database, FileText, Loader2, Scale, Trash2, User, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGeneralState, streamGeneralMessage } from '../api/agentChat';
@@ -45,9 +45,6 @@ function getSaludo(): string {
   return 'Buenas noches';
 }
 
-function generateThreadId(): string {
-  return crypto.randomUUID();
-}
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
@@ -62,13 +59,7 @@ export default function DashboardPage() {
   const [expandedContextItems, setExpandedContextItems] = useState<Set<number>>(new Set());
   const [currentContext, setCurrentContext] = useState<ContextItem[]>([]);
   const [previewState, setPreviewState] = useState<{ url: string; name: string; page: number } | null>(null);
-  const [threadId] = useState<string>(() => {
-    const stored = sessionStorage.getItem('dashboard_thread_id');
-    if (stored) return stored;
-    const id = generateThreadId();
-    sessionStorage.setItem('dashboard_thread_id', id);
-    return id;
-  });
+  const [threadId, setThreadId] = useState<string>(() => crypto.randomUUID());
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatting = messages.length > 0 || sending;
@@ -109,22 +100,13 @@ export default function DashboardPage() {
     setPreviewState(null);
   };
 
-  // Restore messages from existing thread on mount
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const state = await getGeneralState(threadId);
-        if (!cancelled && state.state?.messages) {
-          setMessages(parseMessages(state.state.messages, state.state.context));
-          if (state.state.context) setCurrentContext(state.state.context);
-        }
-      } catch {
-        // No prior state — fresh thread
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [threadId]);
+  const handleClearChat = () => {
+    setMessages([]);
+    setCurrentContext([]);
+    setShowContextPanel(false);
+    setExpandedContextItems(new Set());
+    setThreadId(crypto.randomUUID());
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -239,7 +221,7 @@ export default function DashboardPage() {
                   <div className="chat-page__context-footer">
                     <FileText size={12} />
                     <span>{String(item.document.metadata?.source_filename || 'Desconocido')}</span>
-                    {item.document.metadata?.source_filename && (
+                    {!!item.document.metadata?.source_filename && (
                       <button
                         className="chat-msg__citation-btn"
                         style={{ marginLeft: 'auto' }}
@@ -332,6 +314,15 @@ export default function DashboardPage() {
       {/* Input bar — always visible */}
       <div className="dashboard-page__input-bar">
         <div className="dashboard-page__input-row">
+          {chatting && (
+            <button
+              className="chat-page__header-btn"
+              onClick={handleClearChat}
+              title="Limpiar chat"
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
           <input
             className="dashboard-page__input"
             type="text"
