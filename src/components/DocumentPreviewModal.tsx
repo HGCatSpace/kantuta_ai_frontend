@@ -13,17 +13,18 @@ interface DocumentPreviewModalProps {
     fileUrl: string | null;
     fileName: string;
     onClose: () => void;
+    initialPage?: number;
 }
 
-export default function DocumentPreviewModal({ fileUrl, fileName, onClose }: DocumentPreviewModalProps) {
+export default function DocumentPreviewModal({ fileUrl, fileName, onClose, initialPage = 1 }: DocumentPreviewModalProps) {
     const [numPages, setNumPages] = useState<number>(0);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(initialPage);
     const [scale, setScale] = useState(1.2);
 
     const onDocumentLoadSuccess = useCallback(({ numPages: n }: { numPages: number }) => {
         setNumPages(n);
-        setCurrentPage(1);
-    }, []);
+        setCurrentPage(initialPage);
+    }, [initialPage]);
 
     if (!fileUrl) return null;
 

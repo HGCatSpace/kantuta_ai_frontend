@@ -17,10 +17,12 @@ import { getAgentState, streamMessage } from '../api/agentChat';
 import { getCasoDetail } from '../api/casos';
 import { getChatSession } from '../api/chatSessions';
 import { getPrompt } from '../api/prompts';
-import { getDocumentos } from '../api/documentos';
+import { getDocumentos, getDownloadUrl } from '../api/documentos';
 import type { AgentMessage, ContextItem } from '../api/agentChat';
 import type { DocumentoConocimiento } from '../types/documento';
 import ReactMarkdown from 'react-markdown';
+import DocumentPreviewModal from '../components/DocumentPreviewModal';
+import { useAuthStore } from '../store/authStore';
 import './ChatPage.css';
 
 interface ParsedMessage {
@@ -66,6 +68,7 @@ export default function ChatPage() {
     const { casoId, sessionId } = useParams<{ casoId: string; sessionId: string }>();
     const numericCasoId = Number(casoId);
     const queryClient = useQueryClient();
+    const token = useAuthStore((s) => s.token);
 
     const [input, setInput] = useState('');
     const [sending, setSending] = useState(false);
@@ -74,6 +77,7 @@ export default function ChatPage() {
     const [showContextPanel, setShowContextPanel] = useState(false);
     const [showPromptInfo, setShowPromptInfo] = useState(false);
     const [expandedContextItems, setExpandedContextItems] = useState<Set<number>>(new Set());
+    const [previewState, setPreviewState] = useState<{ url: string; name: string; page: number } | null>(null);
 
     const toggleContextItem = (idx: number) => {
         setExpandedContextItems((prev) => {
@@ -83,6 +87,29 @@ export default function ChatPage() {
             return next;
         });
     };
+
+    const handleContextPreview = async (sourceFilename: string, pageLabel: string | number, titulo?: string) => {
+        const doc =
+            allDocs.find((d) => d.nombre_archivo === sourceFilename) ??
+            (titulo ? allDocs.find((d) => d.titulo === titulo) : undefined);
+        if (!doc) return;
+        const page = parseInt(String(pageLabel), 10) || 1;
+        try {
+            const url = getDownloadUrl(doc.id_documento);
+            const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+            if (!res.ok) return;
+            const blob = await res.blob();
+            setPreviewState({ url: URL.createObjectURL(blob), name: doc.titulo, page });
+        } catch {
+            // silent
+        }
+    };
+
+    const closePreview = () => {
+        if (previewState) URL.revokeObjectURL(previewState.url);
+        setPreviewState(null);
+    };
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const prevMessageCountRef = useRef(0);
 
@@ -114,11 +141,11 @@ export default function ChatPage() {
         enabled: !!chatSession?.system_prompt_id,
     });
 
-    // Fetch all documents and filter to only the ones linked to this prompt
+    // Fetch all documents — only when showDocsPanel is open (for the linked docs list)
     const { data: allDocs = [] } = useQuery({
         queryKey: ['documentos-all'],
         queryFn: () => getDocumentos({ limit: 500 }),
-        enabled: showDocsPanel && !!prompt?.documentos_conocimiento?.length,
+        enabled: showDocsPanel,
     });
 
     const linkedDocs: DocumentoConocimiento[] = prompt?.documentos_conocimiento?.length
@@ -363,7 +390,22 @@ export default function ChatPage() {
                                     </div>
                                     <div className="chat-page__context-footer">
                                         <FileText size={12} />
-                                        {String(item.document.metadata?.source_filename || 'Desconocido')}
+                                        <span>{String(item.document.metadata?.source_filename || 'Desconocido')}</span>
+                                        {item.document.metadata?.source_filename && (
+                                            <button
+                                                className="chat-msg__citation-btn"
+                                                style={{ marginLeft: 'auto' }}
+                                                onClick={() => handleContextPreview(
+                                                    item.document.metadata?.source_filename as string,
+                                                    item.document.metadata?.page_label as string | number,
+                                                    item.document.metadata?.titulo as string,
+                                                )}
+                                                title="Abrir en documento"
+                                            >
+                                                <Database size={11} />
+                                                Ver pág. {String(item.document.metadata?.page_label ?? '?')}
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             );
@@ -418,11 +460,7 @@ export default function ChatPage() {
                                                                 <button
                                                                     key={idx}
                                                                     className="chat-msg__citation-btn"
-                                                                    onClick={() => {
-                                                                        // For now, just show the context panel. 
-                                                                        // Ideally, this would open a specific modal or highlight the item.
-                                                                        setShowContextPanel(true);
-                                                                    }}
+                                                                    onClick={() => setShowContextPanel(true)}
                                                                     title={ctx.document.metadata?.source_filename as string}
                                                                 >
                                                                     <Database size={12} />
@@ -487,6 +525,16 @@ export default function ChatPage() {
                 </p>
             </div>
 
+
+            {/* Document Preview Modal (citation click) */}
+            {previewState && (
+                <DocumentPreviewModal
+                    fileUrl={previewState.url}
+                    fileName={previewState.name}
+                    initialPage={previewState.page}
+                    onClose={closePreview}
+                />
+            )}
 
             {/* Prompt Details Modal */}
             {
