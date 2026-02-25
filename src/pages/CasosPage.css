@@ -456,7 +456,8 @@
 }
 
 .casos-modal__field input,
-.casos-modal__field textarea {
+.casos-modal__field textarea,
+.casos-modal__field select {
   width: 100%;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
@@ -471,7 +472,8 @@
 }
 
 .casos-modal__field input:focus,
-.casos-modal__field textarea:focus {
+.casos-modal__field textarea:focus,
+.casos-modal__field select:focus {
   border-color: var(--color-primary-cobalt);
   box-shadow: 0 0 0 3px rgba(59, 72, 204, 0.12);
 }

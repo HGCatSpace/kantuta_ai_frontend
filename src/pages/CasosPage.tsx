@@ -1,10 +1,10 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, FileText, Trash2, Loader2, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { Search, Plus, FileText, Trash2, Loader2, X, SlidersHorizontal, ArrowUpDown, Pencil } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getCasos, createCaso, archiveCaso } from '../api/casos';
+import { getCasos, createCaso, archiveCaso, updateCaso } from '../api/casos';
 import { useAuthStore } from '../store/authStore';
-import type { Caso, CasoCreate } from '../types/caso';
+import type { Caso, CasoCreate, CasoUpdate } from '../types/caso';
 import { EstadoCaso } from '../types/caso';
 import './CasosPage.css';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -104,10 +104,96 @@ function NuevoCasoModal({
   );
 }
 
+function EditarCasoModal({
+  caso,
+  onClose,
+  onSubmit,
+  isLoading,
+}: {
+  caso: Caso;
+  onClose: () => void;
+  onSubmit: (data: CasoUpdate) => void;
+  isLoading: boolean;
+}) {
+  const [titulo, setTitulo] = useState(caso.titulo);
+  const [descripcion, setDescripcion] = useState(caso.descripcion ?? '');
+  const [estado, setEstado] = useState<EstadoCaso>(caso.estado);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!titulo.trim()) return;
+    onSubmit({
+      titulo: titulo.trim(),
+      descripcion: descripcion.trim() || undefined,
+      estado,
+    });
+  };
+
+  return (
+    <div className="casos-modal-overlay" onClick={onClose}>
+      <div className="casos-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="casos-modal__header">
+          <h2>Editar Caso</h2>
+          <button className="casos-modal__close" onClick={onClose} disabled={isLoading}>
+            <X />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="casos-modal__field">
+            <label htmlFor="edit-titulo">Título</label>
+            <input
+              id="edit-titulo"
+              type="text"
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+              required
+              disabled={isLoading}
+            />
+          </div>
+          <div className="casos-modal__field">
+            <label htmlFor="edit-descripcion">Descripción</label>
+            <textarea
+              id="edit-descripcion"
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              rows={3}
+              disabled={isLoading}
+            />
+          </div>
+          <div className="casos-modal__field">
+            <label htmlFor="edit-estado">Estado</label>
+            <select
+              id="edit-estado"
+              value={estado}
+              onChange={(e) => setEstado(e.target.value as EstadoCaso)}
+              disabled={isLoading}
+            >
+              {Object.values(EstadoCaso).map((s) => (
+                <option key={s} value={s}>
+                  {s.charAt(0) + s.slice(1).toLowerCase()}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="casos-modal__actions">
+            <button type="button" className="casos-modal__cancel" onClick={onClose} disabled={isLoading}>
+              Cancelar
+            </button>
+            <button type="submit" className="casos-modal__submit" disabled={isLoading || !titulo.trim()}>
+              {isLoading ? <Loader2 className="spin" /> : 'Guardar cambios'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function CasosPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [confirmArchive, setConfirmArchive] = useState<Caso | null>(null);
+  const [editingCaso, setEditingCaso] = useState<Caso | null>(null);
   const [filterEstado, setFilterEstado] = useState<EstadoCaso | null>(EstadoCaso.ABIERTO);
   const [sortMode, setSortMode] = useState<SortMode>('fecha_desc');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
@@ -137,6 +223,14 @@ export default function CasosPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['casos'] });
       setShowModal(false);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: CasoUpdate }) => updateCaso(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['casos'] });
+      setEditingCaso(null);
     },
   });
 
@@ -335,8 +429,15 @@ export default function CasosPage() {
                       </button>
                       <button
                         className="casos-table__action-btn"
+                        title="Editar caso"
+                        onClick={(e) => { e.stopPropagation(); setEditingCaso(caso); }}
+                      >
+                        <Pencil />
+                      </button>
+                      <button
+                        className="casos-table__action-btn"
                         title="Archivar"
-                        onClick={() => handleArchive(caso)}
+                        onClick={(e) => { e.stopPropagation(); handleArchive(caso); }}
                         disabled={caso.estado === EstadoCaso.ARCHIVADO}
                       >
                         <Trash2 />
@@ -365,6 +466,15 @@ export default function CasosPage() {
           onConfirm={handleConfirmArchive}
           onCancel={() => setConfirmArchive(null)}
           isLoading={archiveMutation.isPending}
+        />
+      )}
+
+      {editingCaso && (
+        <EditarCasoModal
+          caso={editingCaso}
+          onClose={() => setEditingCaso(null)}
+          onSubmit={(data) => updateMutation.mutate({ id: editingCaso.id_caso, data })}
+          isLoading={updateMutation.isPending}
         />
       )}
 

@@ -135,6 +135,15 @@
   cursor: not-allowed;
 }
 
+.ep-topbar__save--saved,
+.ep-topbar__save--saved:hover,
+.ep-topbar__save--saved:disabled {
+  background-color: #16a34a;
+  border-color: #16a34a;
+  opacity: 1;
+  cursor: default;
+}
+
 /* ─── Tabs ─── */
 
 .ep-tabs {

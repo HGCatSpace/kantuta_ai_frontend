@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   Save,
+  Check,
   Loader2,
   UserRound,
   ListChecks,
@@ -48,6 +49,9 @@ export default function EditorPromptPage() {
     queryFn: () => getPrompt(promptId),
     enabled: !isNaN(promptId),
   });
+
+  const [savedOk, setSavedOk] = useState(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Tab state
   const [activeTab, setActiveTab] = useState<TabId>('prompt');
@@ -116,6 +120,9 @@ export default function EditorPromptPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['prompt', promptId] });
       queryClient.invalidateQueries({ queryKey: ['prompts'] });
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      setSavedOk(true);
+      saveTimerRef.current = setTimeout(() => setSavedOk(false), 2200);
     },
   });
 
@@ -230,12 +237,15 @@ export default function EditorPromptPage() {
         </div>
         <div className="ep-topbar__actions">
           <button
-            className="ep-topbar__btn ep-topbar__save"
+            className={`ep-topbar__btn ep-topbar__save${savedOk ? ' ep-topbar__save--saved' : ''}`}
             onClick={handleSave}
-            disabled={saveMutation.isPending}
+            disabled={saveMutation.isPending || savedOk}
           >
-            {saveMutation.isPending ? <Loader2 className="ep-spin" /> : <Save />}
-            Guardar
+            {saveMutation.isPending
+              ? <><Loader2 className="ep-spin" /> Guardando…</>
+              : savedOk
+              ? <><Check /> Guardado</>
+              : <><Save /> Guardar</>}
           </button>
         </div>
       </div>
