@@ -131,13 +131,7 @@ function VistaRapidaPrompt({
           </button>
         </div>
 
-        {/* Resumen de Lógica */}
-        {prompt.resumen_logica && (
-          <div className="gp-preview__section">
-            <div className="gp-preview__section-title">Resumen de Lógica</div>
-            <div className="gp-preview__blockquote">{prompt.resumen_logica}</div>
-          </div>
-        )}
+
 
         {/* Parámetros del Prompt */}
         <div className="gp-preview__section">
