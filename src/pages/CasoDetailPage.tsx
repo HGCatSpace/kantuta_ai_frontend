@@ -7,6 +7,7 @@ import { getChatsByCaso, archiveChat, createChatSession } from '../api/chatSessi
 import { getActiveSystemPrompts } from '../api/systemPrompts';
 import type { ChatSession } from '../types/chatSession';
 import './CasoDetailPage.css';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const dateFormatter = new Intl.DateTimeFormat('es-BO', {
     day: '2-digit',
@@ -82,6 +83,7 @@ export default function CasoDetailPage() {
     const [showModal, setShowModal] = useState(false);
     const [newChatTitulo, setNewChatTitulo] = useState('');
     const [newChatPromptId, setNewChatPromptId] = useState<number | ''>('');
+    const [confirmArchive, setConfirmArchive] = useState<ChatSession | null>(null);
 
     const {
         data: caso,
@@ -148,8 +150,14 @@ export default function CasoDetailPage() {
     };
 
     const handleArchiveChat = (chat: ChatSession) => {
-        if (!confirm(`¿Archivar el chat "${chat.titulo}"?`)) return;
-        archiveMutation.mutate(chat.id_session);
+        setConfirmArchive(chat);
+    };
+
+    const handleConfirmArchive = () => {
+        if (!confirmArchive) return;
+        archiveMutation.mutate(confirmArchive.id_session, {
+            onSuccess: () => setConfirmArchive(null),
+        });
     };
 
     const handleOpenChat = (sessionId: string) => {
@@ -297,6 +305,24 @@ export default function CasoDetailPage() {
             </table>
 
             {/* ─── New Chat Modal ─── */}
+            {confirmArchive && (
+                <ConfirmDialog
+                    title="Archivar Chat"
+                    message={
+                        <>
+                            ¿Archivar el chat{' '}
+                            <strong>&ldquo;{confirmArchive.titulo}&rdquo;</strong>?
+                            El chat quedará inactivo.
+                        </>
+                    }
+                    confirmLabel="Archivar"
+                    variant="warning"
+                    onConfirm={handleConfirmArchive}
+                    onCancel={() => setConfirmArchive(null)}
+                    isLoading={archiveMutation.isPending}
+                />
+            )}
+
             {showModal && (
                 <div className="caso-modal-overlay" onClick={handleCloseModal}>
                     <div className="caso-modal" onClick={(e) => e.stopPropagation()}>

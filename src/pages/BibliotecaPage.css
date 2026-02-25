@@ -120,9 +120,13 @@
   box-shadow: 0 0 0 3px rgba(59, 72, 204, 0.12);
 }
 
-/* ─── Sort button ─── */
+/* ─── Toolbar dropdown buttons ─── */
 
-.biblioteca-page__sort-btn {
+.biblioteca-page__dropdown-wrapper {
+  position: relative;
+}
+
+.biblioteca-page__toolbar-btn {
   display: flex;
   align-items: center;
   gap: 0.375rem;
@@ -136,17 +140,70 @@
   border-radius: 6px;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.15s, border-color 0.15s;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.biblioteca-page__sort-btn:hover {
+.biblioteca-page__toolbar-btn:hover {
   background-color: #f8fafc;
   border-color: #94a3b8;
 }
 
-.biblioteca-page__sort-btn svg {
+.biblioteca-page__toolbar-btn--active {
+  color: #fff;
+  background-color: var(--color-sidebar-bg);
+  border-color: var(--color-sidebar-bg);
+}
+
+.biblioteca-page__toolbar-btn--active:hover {
+  background-color: #161B2B;
+  border-color: #161B2B;
+}
+
+.biblioteca-page__toolbar-btn svg {
   width: 14px;
   height: 14px;
+}
+
+.biblioteca-page__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #e8ebf0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+  padding: 0.375rem 0;
+}
+
+.biblioteca-page__dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-family: var(--font-sans);
+  color: #334155;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.biblioteca-page__dropdown-item:hover {
+  background-color: #f1f5f9;
+}
+
+.biblioteca-page__dropdown-item--active {
+  color: var(--color-primary-cobalt);
+  font-weight: 600;
+}
+
+.biblioteca-page__dropdown-divider {
+  height: 1px;
+  background: #e8ebf0;
+  margin: 0.25rem 0;
 }
 
 /* ─── Status (loading/error) ─── */

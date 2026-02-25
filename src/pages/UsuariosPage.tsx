@@ -444,7 +444,7 @@ export default function UsuariosPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortMode, setSortMode] = useState<SortMode>('fecha_desc');
   const [filterRol, setFilterRol] = useState<FilterRol>(null);
-  const [filterEstado, setFilterEstado] = useState<FilterEstado>(null);
+  const [filterEstado, setFilterEstado] = useState<FilterEstado>('active');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);

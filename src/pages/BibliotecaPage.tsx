@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Search,
@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowUpDown,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getDocumentos, getDocumentosCount, deleteDocumento, getDownloadUrl } from '../api/documentos';
@@ -37,6 +38,8 @@ function formatFecha(isoDate: string): string {
   }
 }
 
+const CATEGORIAS = Object.values(CategoriaBiblioteca);
+
 const CATEGORIA_DOT_CLASS: Record<string, string> = {
   Contratos: 'contratos',
   Litigios: 'litigios',
@@ -48,7 +51,12 @@ export default function BibliotecaPage() {
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
-  const [sortByTitle, setSortByTitle] = useState(false);
+  const [categoriaFilter, setCategoriaFilter] = useState<string | null>(null);
+  const [sortMode, setSortMode] = useState<'fecha' | 'titulo'>('fecha');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+  const sortRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const token = useAuthStore((s) => s.token);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -107,14 +115,29 @@ export default function BibliotecaPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
+  // Reset page on categoria filter change
+  useEffect(() => { setPage(0); }, [categoriaFilter]);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) setShowFilterDropdown(false);
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) setShowSortDropdown(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
   const queryParams = {
     offset: page * PAGE_SIZE,
     limit: PAGE_SIZE,
     ...(search ? { search } : {}),
+    ...(categoriaFilter ? { categoria: categoriaFilter } : {}),
   };
 
   const countParams = {
     ...(search ? { search } : {}),
+    ...(categoriaFilter ? { categoria: categoriaFilter } : {}),
   };
 
   const {
@@ -140,10 +163,13 @@ export default function BibliotecaPage() {
   });
 
 
-  // Client-side sort toggle
-  const sortedDocumentos = sortByTitle
-    ? [...documentos].sort((a, b) => a.titulo.localeCompare(b.titulo, 'es'))
-    : documentos;
+  // Client-side sort
+  const sortedDocumentos = useMemo(() => {
+    if (sortMode === 'titulo') {
+      return [...documentos].sort((a, b) => a.titulo.localeCompare(b.titulo, 'es'));
+    }
+    return documentos;
+  }, [documentos, sortMode]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const showingFrom = total === 0 ? 0 : page * PAGE_SIZE + 1;
@@ -181,14 +207,62 @@ export default function BibliotecaPage() {
                 onChange={(e) => setSearchInput(e.target.value)}
               />
             </div>
-            <button
-              className="biblioteca-page__sort-btn"
-              onClick={() => setSortByTitle((v) => !v)}
-              title={sortByTitle ? 'Ordenado por titulo' : 'Ordenado por fecha'}
-            >
-              <ArrowUpDown />
-              Ordenar
-            </button>
+
+            {/* Filtros por categoría */}
+            <div className="biblioteca-page__dropdown-wrapper" ref={filterRef}>
+              <button
+                className={`biblioteca-page__toolbar-btn${categoriaFilter ? ' biblioteca-page__toolbar-btn--active' : ''}`}
+                onClick={() => { setShowFilterDropdown((v) => !v); setShowSortDropdown(false); }}
+              >
+                <SlidersHorizontal /> Filtros
+              </button>
+              {showFilterDropdown && (
+                <div className="biblioteca-page__dropdown">
+                  <button
+                    className={`biblioteca-page__dropdown-item${!categoriaFilter ? ' biblioteca-page__dropdown-item--active' : ''}`}
+                    onClick={() => { setCategoriaFilter(null); setShowFilterDropdown(false); }}
+                  >
+                    Todas
+                  </button>
+                  <div className="biblioteca-page__dropdown-divider" />
+                  {CATEGORIAS.map((c) => (
+                    <button
+                      key={c}
+                      className={`biblioteca-page__dropdown-item${categoriaFilter === c ? ' biblioteca-page__dropdown-item--active' : ''}`}
+                      onClick={() => { setCategoriaFilter(c); setShowFilterDropdown(false); }}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Ordenar */}
+            <div className="biblioteca-page__dropdown-wrapper" ref={sortRef}>
+              <button
+                className="biblioteca-page__toolbar-btn"
+                onClick={() => { setShowSortDropdown((v) => !v); setShowFilterDropdown(false); }}
+              >
+                <ArrowUpDown /> Ordenar
+              </button>
+              {showSortDropdown && (
+                <div className="biblioteca-page__dropdown">
+                  <button
+                    className={`biblioteca-page__dropdown-item${sortMode === 'fecha' ? ' biblioteca-page__dropdown-item--active' : ''}`}
+                    onClick={() => { setSortMode('fecha'); setShowSortDropdown(false); }}
+                  >
+                    Fecha de creación
+                  </button>
+                  <button
+                    className={`biblioteca-page__dropdown-item${sortMode === 'titulo' ? ' biblioteca-page__dropdown-item--active' : ''}`}
+                    onClick={() => { setSortMode('titulo'); setShowSortDropdown(false); }}
+                  >
+                    Título A-Z
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

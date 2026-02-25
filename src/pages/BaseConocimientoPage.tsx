@@ -34,6 +34,7 @@ import { useAuthStore } from '../store/authStore';
 import { searchKnowledgeBase, getKnowledgeSources } from '../api/knowledgeSearch';
 import type { ChunkResult } from '../api/knowledgeSearch';
 import './BaseConocimientoPage.css';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const PAGE_SIZE = 8;
 
@@ -567,6 +568,7 @@ export default function BaseConocimientoPage() {
   const [showUpload, setShowUpload] = useState(false);
   const [editingDoc, setEditingDoc] = useState<DocumentoConocimiento | null>(null);
   const [showTestPanel, setShowTestPanel] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<DocumentoConocimiento | null>(null);
 
   const queryClient = useQueryClient();
   const token = useAuthStore((s) => s.token);
@@ -628,8 +630,14 @@ export default function BaseConocimientoPage() {
   };
 
   const handleDelete = (doc: DocumentoConocimiento) => {
-    if (!confirm(`¿Eliminar permanentemente "${doc.titulo}"? Esta acción no se puede deshacer.`)) return;
-    deleteMutation.mutate(doc.id_documento);
+    setConfirmDelete(doc);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!confirmDelete) return;
+    deleteMutation.mutate(confirmDelete.id_documento, {
+      onSuccess: () => setConfirmDelete(null),
+    });
   };
 
   const handleDownload = async (doc: DocumentoConocimiento) => {
@@ -924,6 +932,24 @@ export default function BaseConocimientoPage() {
       )}
 
       <ProbarPanel open={showTestPanel} onClose={() => setShowTestPanel(false)} />
+
+      {confirmDelete && (
+        <ConfirmDialog
+          title="Eliminar Documento"
+          message={
+            <>
+              ¿Eliminar permanentemente{' '}
+              <strong>&ldquo;{confirmDelete.titulo}&rdquo;</strong>? Esta acción
+              no se puede deshacer.
+            </>
+          }
+          confirmLabel="Eliminar"
+          variant="danger"
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setConfirmDelete(null)}
+          isLoading={deleteMutation.isPending}
+        />
+      )}
     </div>
   );
 }

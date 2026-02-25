@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, FileText, Trash2, Loader2, X } from 'lucide-react';
+import { Search, Plus, FileText, Trash2, Loader2, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCasos, createCaso, archiveCaso } from '../api/casos';
 import { useAuthStore } from '../store/authStore';
 import type { Caso, CasoCreate } from '../types/caso';
 import { EstadoCaso } from '../types/caso';
 import './CasosPage.css';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const dateFormatter = new Intl.DateTimeFormat('es-BO', {
   day: '2-digit',
@@ -37,6 +38,8 @@ function formatFechaHora(isoDate: string): string {
     return isoDate;
   }
 }
+
+type SortMode = 'fecha_desc' | 'titulo_asc';
 
 function NuevoCasoModal({
   onClose,
@@ -104,9 +107,25 @@ function NuevoCasoModal({
 export default function CasosPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [confirmArchive, setConfirmArchive] = useState<Caso | null>(null);
+  const [filterEstado, setFilterEstado] = useState<EstadoCaso | null>(EstadoCaso.ABIERTO);
+  const [sortMode, setSortMode] = useState<SortMode>('fecha_desc');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+  const sortRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const userId = useAuthStore((s) => s.user?.userId);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) setShowFilterDropdown(false);
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) setShowSortDropdown(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   const { data: casos = [], isLoading, isError } = useQuery({
     queryKey: ['casos'],
@@ -139,19 +158,36 @@ export default function CasosPage() {
 
   const handleArchive = (caso: Caso) => {
     if (caso.estado === EstadoCaso.ARCHIVADO) return;
-    if (!confirm(`Archivar el caso "${caso.titulo}"?`)) return;
-    archiveMutation.mutate(caso.id_caso);
+    setConfirmArchive(caso);
   };
 
-  const filteredCasos = casos.filter((c) => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      c.titulo.toLowerCase().includes(q) ||
-      String(c.id_caso).includes(q) ||
-      (c.descripcion?.toLowerCase().includes(q) ?? false)
-    );
-  });
+  const handleConfirmArchive = () => {
+    if (!confirmArchive) return;
+    archiveMutation.mutate(confirmArchive.id_caso, {
+      onSuccess: () => setConfirmArchive(null),
+    });
+  };
+
+  const filteredCasos = useMemo(() => {
+    let result = casos.filter((c) => {
+      if (filterEstado && c.estado !== filterEstado) return false;
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        c.titulo.toLowerCase().includes(q) ||
+        String(c.id_caso).includes(q) ||
+        (c.descripcion?.toLowerCase().includes(q) ?? false)
+      );
+    });
+    if (sortMode === 'titulo_asc') {
+      result = [...result].sort((a, b) => a.titulo.localeCompare(b.titulo, 'es'));
+    } else {
+      result = [...result].sort((a, b) =>
+        new Date(b.fecha_creacion).getTime() - new Date(a.fecha_creacion).getTime()
+      );
+    }
+    return result;
+  }, [casos, searchQuery, filterEstado, sortMode]);
 
   return (
     <div className="casos-page">
@@ -169,7 +205,7 @@ export default function CasosPage() {
         </button>
       </div>
 
-      {/* Busqueda */}
+      {/* Toolbar */}
       <div className="casos-page__toolbar">
         <div className="casos-page__search">
           <Search className="casos-page__search-icon" />
@@ -180,6 +216,62 @@ export default function CasosPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+        </div>
+
+        {/* Filtros */}
+        <div className="casos-page__dropdown-wrapper" ref={filterRef}>
+          <button
+            className={`casos-page__toolbar-btn${filterEstado ? ' casos-page__toolbar-btn--active' : ''}`}
+            onClick={() => { setShowFilterDropdown((v) => !v); setShowSortDropdown(false); }}
+          >
+            <SlidersHorizontal /> Filtros
+          </button>
+          {showFilterDropdown && (
+            <div className="casos-page__dropdown">
+              <button
+                className={`casos-page__dropdown-item${filterEstado === null ? ' casos-page__dropdown-item--active' : ''}`}
+                onClick={() => { setFilterEstado(null); setShowFilterDropdown(false); }}
+              >
+                Todos
+              </button>
+              <div className="casos-page__dropdown-divider" />
+              {Object.values(EstadoCaso).map((e) => (
+                <button
+                  key={e}
+                  className={`casos-page__dropdown-item${filterEstado === e ? ' casos-page__dropdown-item--active' : ''}`}
+                  onClick={() => { setFilterEstado(e); setShowFilterDropdown(false); }}
+                >
+                  {e.charAt(0) + e.slice(1).toLowerCase()}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Ordenar */}
+        <div className="casos-page__dropdown-wrapper" ref={sortRef}>
+          <button
+            className="casos-page__toolbar-btn"
+            onClick={() => { setShowSortDropdown((v) => !v); setShowFilterDropdown(false); }}
+          >
+            <ArrowUpDown /> Ordenar
+          </button>
+          {showSortDropdown && (
+            <div className="casos-page__dropdown">
+              <button
+                className={`casos-page__dropdown-item${sortMode === 'fecha_desc' ? ' casos-page__dropdown-item--active' : ''}`}
+                onClick={() => { setSortMode('fecha_desc'); setShowSortDropdown(false); }}
+              >
+                Más recientes
+              </button>
+              <button
+                className={`casos-page__dropdown-item${sortMode === 'titulo_asc' ? ' casos-page__dropdown-item--active' : ''}`}
+                onClick={() => { setSortMode('titulo_asc'); setShowSortDropdown(false); }}
+              >
+                Título A-Z
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -256,6 +348,24 @@ export default function CasosPage() {
             )}
           </tbody>
         </table>
+      )}
+
+      {confirmArchive && (
+        <ConfirmDialog
+          title="Archivar Caso"
+          message={
+            <>
+              ¿Archivar el caso{' '}
+              <strong>&ldquo;{confirmArchive.titulo}&rdquo;</strong>?
+              El caso quedará inactivo.
+            </>
+          }
+          confirmLabel="Archivar"
+          variant="warning"
+          onConfirm={handleConfirmArchive}
+          onCancel={() => setConfirmArchive(null)}
+          isLoading={archiveMutation.isPending}
+        />
       )}
 
       {/* Modal */}

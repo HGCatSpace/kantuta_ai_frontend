@@ -12,6 +12,7 @@ import {
   ArrowUpDown,
   ChevronLeft,
   ChevronRight,
+  AlertTriangle,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getPrompts, getPromptsCount, createPrompt, updatePrompt, deletePrompt } from '../api/prompts';
@@ -51,6 +52,45 @@ function buildPageNumbers(current: number, total: number): (number | 'ellipsis')
   if (current < total - 2) pages.push('ellipsis');
   pages.push(total);
   return pages;
+}
+
+/* ── Confirm Delete Dialog ── */
+
+function ConfirmDeleteDialog({
+  promptName,
+  onConfirm,
+  onCancel,
+  isDeleting,
+}: {
+  promptName: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isDeleting: boolean;
+}) {
+  return (
+    <div className="gp-confirm-overlay" onClick={onCancel}>
+      <div className="gp-confirm" onClick={(e) => e.stopPropagation()}>
+        <div className="gp-confirm__icon-wrap">
+          <AlertTriangle className="gp-confirm__icon" />
+        </div>
+        <h2 className="gp-confirm__title">Archivar Prompt</h2>
+        <p className="gp-confirm__body">
+          ¿Estás seguro de que deseas archivar{' '}
+          <strong>&ldquo;{promptName}&rdquo;</strong>? Esta acción no se puede
+          deshacer.
+        </p>
+        <div className="gp-confirm__actions">
+          <button className="gp-confirm__cancel-btn" onClick={onCancel} disabled={isDeleting}>
+            Cancelar
+          </button>
+          <button className="gp-confirm__delete-btn" onClick={onConfirm} disabled={isDeleting}>
+            {isDeleting ? <Loader2 className="gp-spin" /> : <Trash2 />}
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /* ── Vista Rápida (Preview Popup) ── */
@@ -166,10 +206,11 @@ export default function GestionPromptsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortMode, setSortMode] = useState<SortMode>('fecha_desc');
-  const [filterEstado, setFilterEstado] = useState<FilterEstado>(null);
+  const [filterEstado, setFilterEstado] = useState<FilterEstado>(true);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [previewPrompt, setPreviewPrompt] = useState<SystemPrompt | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ id: number; nombre: string } | null>(null);
 
   const filterRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
@@ -231,9 +272,15 @@ export default function GestionPromptsPage() {
     },
   });
 
-  function handleDelete(id: number) {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este prompt? Esta acción no se puede deshacer.')) {
-      deleteMutation.mutate(id);
+  function handleDelete(prompt: SystemPrompt) {
+    setConfirmDelete({ id: prompt.id_prompt, nombre: prompt.nombre });
+  }
+
+  function handleConfirmDelete() {
+    if (confirmDelete) {
+      deleteMutation.mutate(confirmDelete.id, {
+        onSuccess: () => setConfirmDelete(null),
+      });
     }
   }
 
@@ -451,8 +498,8 @@ export default function GestionPromptsPage() {
                         </button>
                         <button
                           className="gp-table__action-btn gp-table__action-btn--danger"
-                          title="Eliminar prompt"
-                          onClick={() => handleDelete(prompt.id_prompt)}
+                          title="Archivar prompt"
+                          onClick={() => handleDelete(prompt)}
                           disabled={deleteMutation.isPending}
                         >
                           <Trash2 />
@@ -508,6 +555,16 @@ export default function GestionPromptsPage() {
         </>
       )}
 
+      {/* Confirm Delete Dialog */}
+      {confirmDelete && (
+        <ConfirmDeleteDialog
+          promptName={confirmDelete.nombre}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setConfirmDelete(null)}
+          isDeleting={deleteMutation.isPending}
+        />
+      )}
+
       {/* Preview Popup */}
       {previewPrompt && (
         <VistaRapidaPrompt
@@ -520,7 +577,7 @@ export default function GestionPromptsPage() {
             })
           }
           isToggling={toggleMutation.isPending}
-          onDelete={() => handleDelete(previewPrompt.id_prompt)}
+          onDelete={() => handleDelete(previewPrompt)}
           isDeleting={deleteMutation.isPending}
         />
       )}
