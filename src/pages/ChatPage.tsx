@@ -460,11 +460,8 @@ export default function ChatPage() {
                                                                 <button
                                                                     key={idx}
                                                                     className="chat-msg__citation-btn"
-                                                                    onClick={() => handleContextPreview(
-                                                                        ctx.document.metadata?.source_filename as string,
-                                                                        (ctx.document.metadata?.page as number ?? 0) + 1,
-                                                                        ctx.document.metadata?.titulo as string,
-                                                                    )}
+                                                                    onClick={() => setShowContextPanel(true)}  
+                                                                    
                                                                     title={ctx.document.metadata?.source_filename as string}
                                                                 >
                                                                     <Database size={12} />
