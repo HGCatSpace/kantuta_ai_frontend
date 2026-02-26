@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import 'react-pdf/dist/Page/TextLayer.css';
 import './DocumentPreviewModal.css';
 
 // Configure worker
@@ -14,17 +15,39 @@ interface DocumentPreviewModalProps {
     fileName: string;
     onClose: () => void;
     initialPage?: number;
+    highlightText?: string;
 }
 
-export default function DocumentPreviewModal({ fileUrl, fileName, onClose, initialPage = 1 }: DocumentPreviewModalProps) {
+function buildTextRenderer(highlightText: string | undefined) {
+    if (!highlightText) return undefined;
+    const normalizedHighlight = highlightText.replace(/\s+/g, ' ').toLowerCase();
+    return ({ str }: { str: string }) => {
+        const normalizedStr = str.replace(/\s+/g, ' ').toLowerCase().trim();
+        if (normalizedStr.length > 3 && normalizedHighlight.includes(normalizedStr)) {
+            return `<mark class="pdf-highlight">${str}</mark>`;
+        }
+        return str;
+    };
+}
+
+export default function DocumentPreviewModal({ fileUrl, fileName, onClose, initialPage = 1, highlightText }: DocumentPreviewModalProps) {
     const [numPages, setNumPages] = useState<number>(0);
     const [currentPage, setCurrentPage] = useState(initialPage);
     const [scale, setScale] = useState(1.2);
+    const bodyRef = useRef<HTMLDivElement>(null);
 
     const onDocumentLoadSuccess = useCallback(({ numPages: n }: { numPages: number }) => {
         setNumPages(n);
         setCurrentPage(initialPage);
     }, [initialPage]);
+
+    const onPageRenderSuccess = useCallback(() => {
+        if (!highlightText) return;
+        setTimeout(() => {
+            const mark = bodyRef.current?.querySelector<HTMLElement>('.pdf-highlight');
+            mark?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 80);
+    }, [highlightText]);
 
     if (!fileUrl) return null;
 
@@ -75,7 +98,7 @@ export default function DocumentPreviewModal({ fileUrl, fileName, onClose, initi
                 )}
 
                 {/* Viewer */}
-                <div className="doc-preview__body">
+                <div className="doc-preview__body" ref={bodyRef}>
                     {isPdf ? (
                         <Document
                             file={fileUrl}
@@ -84,8 +107,10 @@ export default function DocumentPreviewModal({ fileUrl, fileName, onClose, initi
                             <Page
                                 pageNumber={currentPage}
                                 scale={scale}
-                                renderTextLayer={false}
+                                renderTextLayer={!!highlightText}
                                 renderAnnotationLayer={false}
+                                customTextRenderer={buildTextRenderer(highlightText)}
+                                onRenderSuccess={onPageRenderSuccess}
                             />
                         </Document>
                     ) : (

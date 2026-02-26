@@ -205,3 +205,12 @@
 .doc-preview__error {
     color: #ef4444;
 }
+
+/* ─── Citation highlight ─── */
+
+.pdf-highlight {
+    background: rgba(253, 224, 71, 0.55);
+    border-radius: 2px;
+    padding: 0 1px;
+    color: inherit;
+}

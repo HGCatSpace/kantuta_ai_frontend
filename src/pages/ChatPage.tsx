@@ -77,7 +77,7 @@ export default function ChatPage() {
     const [showContextPanel, setShowContextPanel] = useState(false);
     const [showPromptInfo, setShowPromptInfo] = useState(false);
     const [expandedContextItems, setExpandedContextItems] = useState<Set<number>>(new Set());
-    const [previewState, setPreviewState] = useState<{ url: string; name: string; page: number } | null>(null);
+    const [previewState, setPreviewState] = useState<{ url: string; name: string; page: number; highlightText?: string } | null>(null);
 
     const toggleContextItem = (idx: number) => {
         setExpandedContextItems((prev) => {
@@ -88,7 +88,7 @@ export default function ChatPage() {
         });
     };
 
-    const handleContextPreview = async (sourceFilename: string, pageLabel: string | number, titulo?: string) => {
+    const handleContextPreview = async (sourceFilename: string, pageLabel: string | number, titulo?: string, highlightText?: string) => {
         const doc =
             allDocs.find((d) => d.nombre_archivo === sourceFilename) ??
             (titulo ? allDocs.find((d) => d.titulo === titulo) : undefined);
@@ -99,7 +99,7 @@ export default function ChatPage() {
             const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
             if (!res.ok) return;
             const blob = await res.blob();
-            setPreviewState({ url: URL.createObjectURL(blob), name: doc.titulo, page });
+            setPreviewState({ url: URL.createObjectURL(blob), name: doc.titulo, page, highlightText });
         } catch {
             // silent
         }
@@ -399,6 +399,7 @@ export default function ChatPage() {
                                                     item.document.metadata?.source_filename as string,
                                                     (item.document.metadata?.page as number ?? 0) + 1,
                                                     item.document.metadata?.titulo as string,
+                                                    item.document.page_content,
                                                 )}
                                                 title="Abrir en documento"
                                             >
@@ -460,8 +461,12 @@ export default function ChatPage() {
                                                                 <button
                                                                     key={idx}
                                                                     className="chat-msg__citation-btn"
-                                                                    onClick={() => setShowContextPanel(true)}  
-                                                                    
+                                                                    onClick={() => handleContextPreview(
+                                                                        ctx.document.metadata?.source_filename as string,
+                                                                        (ctx.document.metadata?.page as number ?? 0) + 1,
+                                                                        ctx.document.metadata?.titulo as string,
+                                                                        ctx.document.page_content,
+                                                                    )}
                                                                     title={ctx.document.metadata?.source_filename as string}
                                                                 >
                                                                     <Database size={12} />
@@ -533,6 +538,7 @@ export default function ChatPage() {
                     fileUrl={previewState.url}
                     fileName={previewState.name}
                     initialPage={previewState.page}
+                    highlightText={previewState.highlightText}
                     onClose={closePreview}
                 />
             )}
