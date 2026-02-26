@@ -141,11 +141,11 @@ export default function ChatPage() {
         enabled: !!chatSession?.system_prompt_id,
     });
 
-    // Fetch all documents — only when showDocsPanel is open (for the linked docs list)
+    // Fetch all documents — needed for both the docs panel and citation PDF preview
     const { data: allDocs = [] } = useQuery({
         queryKey: ['documentos-all'],
         queryFn: () => getDocumentos({ limit: 500 }),
-        enabled: showDocsPanel,
+        enabled: !!sessionId,
     });
 
     const linkedDocs: DocumentoConocimiento[] = prompt?.documentos_conocimiento?.length
@@ -460,7 +460,11 @@ export default function ChatPage() {
                                                                 <button
                                                                     key={idx}
                                                                     className="chat-msg__citation-btn"
-                                                                    onClick={() => setShowContextPanel(true)}
+                                                                    onClick={() => handleContextPreview(
+                                                                        ctx.document.metadata?.source_filename as string,
+                                                                        (ctx.document.metadata?.page as number ?? 0) + 1,
+                                                                        ctx.document.metadata?.titulo as string,
+                                                                    )}
                                                                     title={ctx.document.metadata?.source_filename as string}
                                                                 >
                                                                     <Database size={12} />
