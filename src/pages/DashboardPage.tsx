@@ -58,7 +58,7 @@ export default function DashboardPage() {
   const [showContextPanel, setShowContextPanel] = useState(false);
   const [expandedContextItems, setExpandedContextItems] = useState<Set<number>>(new Set());
   const [currentContext, setCurrentContext] = useState<ContextItem[]>([]);
-  const [previewState, setPreviewState] = useState<{ url: string; name: string; page: number } | null>(null);
+  const [previewState, setPreviewState] = useState<{ url: string; name: string; page: number; highlightText?: string } | null>(null);
   const [threadId, setThreadId] = useState<string>(() => crypto.randomUUID());
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -73,7 +73,7 @@ export default function DashboardPage() {
     });
   };
 
-  const handleContextPreview = async (sourceFilename: string, pageLabel: string | number, titulo?: string) => {
+  const handleContextPreview = async (sourceFilename: string, pageLabel: string | number, titulo?: string, highlightText?: string) => {
     const docs = await queryClient.fetchQuery({
       queryKey: ['documentos-all'],
       queryFn: () => getDocumentos({ limit: 500 }),
@@ -89,7 +89,7 @@ export default function DashboardPage() {
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) return;
       const blob = await res.blob();
-      setPreviewState({ url: URL.createObjectURL(blob), name: doc.titulo, page });
+      setPreviewState({ url: URL.createObjectURL(blob), name: doc.titulo, page, highlightText });
     } catch {
       // silent
     }
@@ -229,6 +229,7 @@ export default function DashboardPage() {
                           item.document.metadata?.source_filename as string,
                           (item.document.metadata?.page as number ?? 0) + 1,
                           item.document.metadata?.titulo as string,
+                          item.document.page_content,
                         )}
                         title="Abrir en documento"
                       >
@@ -279,7 +280,12 @@ export default function DashboardPage() {
                               <button
                                 key={idx}
                                 className="chat-msg__citation-btn"
-                                onClick={() => setShowContextPanel(true)}
+                                onClick={() => handleContextPreview(
+                                  ctx.document.metadata?.source_filename as string,
+                                  (ctx.document.metadata?.page as number ?? 0) + 1,
+                                  ctx.document.metadata?.titulo as string,
+                                  ctx.document.page_content,
+                                )}
                                 title={ctx.document.metadata?.source_filename as string}
                               >
                                 <Database size={12} />
@@ -352,6 +358,7 @@ export default function DashboardPage() {
           fileUrl={previewState.url}
           fileName={previewState.name}
           initialPage={previewState.page}
+          highlightText={previewState.highlightText}
           onClose={closePreview}
         />
       )}
