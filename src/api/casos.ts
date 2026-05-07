@@ -40,3 +40,10 @@ export async function getCasoDetail(id: number): Promise<CasoDetail> {
   const response = await apiClient.get<CasoDetail>(`/casos/${id}/detail`);
   return response.data;
 }
+
+export async function exportarHistorialCaso(id: number): Promise<Blob> {
+  const response = await apiClient.get<Blob>(`/casos/${id}/exportar`, {
+    responseType: 'blob',
+  });
+  return response.data;
+}

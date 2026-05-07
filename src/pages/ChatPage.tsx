@@ -12,9 +12,10 @@ import {
     Info,
     Database,
     ChevronDown,
+    Download,
 } from 'lucide-react';
 import { getAgentState, streamMessage } from '../api/agentChat';
-import { getCasoDetail } from '../api/casos';
+import { getCasoDetail, exportarHistorialCaso } from '../api/casos';
 import { getChatSession } from '../api/chatSessions';
 import { getPrompt } from '../api/prompts';
 import { getDocumentos, getDownloadUrl } from '../api/documentos';
@@ -78,6 +79,28 @@ export default function ChatPage() {
     const [showPromptInfo, setShowPromptInfo] = useState(false);
     const [expandedContextItems, setExpandedContextItems] = useState<Set<number>>(new Set());
     const [previewState, setPreviewState] = useState<{ url: string; name: string; page: number; highlightText?: string } | null>(null);
+    const [exporting, setExporting] = useState(false);
+
+    const handleExportarHistorial = async () => {
+        if (!numericCasoId || exporting) return;
+        setExporting(true);
+        try {
+            const blob = await exportarHistorialCaso(numericCasoId);
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `caso_${numericCasoId}_historial.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('Error al exportar historial:', err);
+            alert('No se pudo exportar el historial. Verifica tu conexión.');
+        } finally {
+            setExporting(false);
+        }
+    };
 
     const toggleContextItem = (idx: number) => {
         setExpandedContextItems((prev) => {
@@ -304,6 +327,14 @@ export default function ChatPage() {
                                 {prompt.documentos_conocimiento.length}
                             </span>
                         ) : null}
+                    </button>
+                    <button
+                        className="chat-page__header-btn"
+                        title="Exportar historial del caso a PDF"
+                        onClick={handleExportarHistorial}
+                        disabled={exporting}
+                    >
+                        {exporting ? <Loader2 className="spin" /> : <Download />}
                     </button>
                 </div>
             </div>

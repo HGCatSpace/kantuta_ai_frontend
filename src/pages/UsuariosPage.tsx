@@ -3,7 +3,6 @@ import {
   Search,
   Plus,
   Pencil,
-  Power,
   Loader2,
   X,
   SlidersHorizontal,
@@ -772,17 +771,27 @@ export default function UsuariosPage() {
                         </button>
                       </td>
                       <td>
-                        <button
-                          className={`usuarios-table__estado-btn ${
+                        <label
+                          className={`usuarios-table__switch ${
                             usuario.activo === 'active'
-                              ? 'usuarios-table__estado-btn--active'
-                              : 'usuarios-table__estado-btn--inactive'
+                              ? 'usuarios-table__switch--on'
+                              : 'usuarios-table__switch--off'
                           }`}
-                          title={usuario.activo === 'active' ? 'Desactivar' : 'Activar'}
-                          onClick={() => toggleEstado(usuario)}
+                          title={usuario.activo === 'active' ? 'Desactivar usuario' : 'Activar usuario'}
                         >
-                          <Power />
-                        </button>
+                          <input
+                            type="checkbox"
+                            className="usuarios-table__switch-input"
+                            checked={usuario.activo === 'active'}
+                            onChange={() => toggleEstado(usuario)}
+                          />
+                          <span className="usuarios-table__switch-track">
+                            <span className="usuarios-table__switch-thumb" />
+                          </span>
+                          <span className="usuarios-table__switch-label">
+                            {usuario.activo === 'active' ? 'Activo' : 'Inactivo'}
+                          </span>
+                        </label>
                       </td>
                     </tr>
                   );

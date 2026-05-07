@@ -12,7 +12,7 @@
   min-width: 240px;
   min-height: 100vh;
   background-color: var(--color-sidebar-bg);
-  padding: 1.5rem 0;
+  padding: 0 0 1.5rem;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -23,22 +23,37 @@
 .sidebar__logo {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0 1.25rem;
-  margin-bottom: 1.75rem;
-}
-
-.sidebar__logo-icon {
-  width: 28px;
-  height: 28px;
-  color: var(--color-accent-gold);
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  margin-bottom: 1.25rem;
+  background-color: var(--color-primary-cobalt);
 }
 
 .sidebar__logo-text {
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #fff;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.005em;
+  line-height: 1;
+}
+
+.sidebar__logo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 0.3rem;
+  border-radius: 9px;
+  background-color: #fff;
+  color: var(--color-primary-cobalt);
+  font-family: var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1;
 }
 
 /* ─── Navegación ─── */
@@ -58,7 +73,7 @@
   padding: 0.5rem 0.625rem;
   border-radius: 8px;
   font-size: 0.875rem;
-  color: #94A3B8;
+  color: #E2E8F0;
   text-decoration: none;
   cursor: pointer;
   border: none;
@@ -70,14 +85,14 @@
 }
 
 .sidebar__nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.35);
   color: #E2E8F0;
 }
 
 .sidebar__nav-item--active,
 .sidebar__nav-item.active {
-  background-color: var(--color-primary-cobalt);
-  color: #fff;
+  background-color: #E2E8F0;
+  color: black;
 }
 
 .sidebar__nav-item--active:hover,
@@ -115,11 +130,23 @@
   gap: 2px;
 }
 
+/* ─── Sub-items con icono (Base de Conocimiento Jurídico) ─── */
+
+.sidebar__subnav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar__nav-item--nested {
+  padding-left: 1.75rem;
+}
+
 .sidebar__subnav-item {
   display: block;
   padding: 0.3rem 0.5rem;
   font-size: 0.8125rem;
-  color: #94A3B8;
+  color: #E2E8F0;
   text-decoration: none;
   border-radius: 6px;
   transition: color 0.15s;
@@ -172,11 +199,21 @@
 }
 
 .sidebar__user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 36px;
   height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, #d4a574, #c5a065);
   flex-shrink: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.18);
+  user-select: none;
 }
 
 .sidebar__user-info {

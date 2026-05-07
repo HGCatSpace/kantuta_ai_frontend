@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowUp, ChevronDown, Database, FileText, Loader2, Scale, Trash2, User, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowUp, BarChart3, ChevronDown, Database, FileText, FolderOpen, Loader2, MessageSquare, Scale, Trash2, User, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getGeneralState, streamGeneralMessage } from '../api/agentChat';
 import { getDocumentos, getDownloadUrl } from '../api/documentos';
+import { getUserDashboard } from '../api/dashboard';
 import type { AgentMessage, ContextItem } from '../api/agentChat';
 import ReactMarkdown from 'react-markdown';
 import DocumentPreviewModal from '../components/DocumentPreviewModal';
@@ -51,6 +53,15 @@ export default function DashboardPage() {
   const token = useAuthStore((s) => s.token);
   const nombre = user?.nombre?.split(' ')[0] ?? 'Usuario';
   const queryClient = useQueryClient();
+
+  const isAdmin = user?.rolNombre?.toLowerCase().includes('admin') ?? false;
+  const puedeVerReporte = (user?.actions?.includes('Informes y reportes') ?? false) || isAdmin;
+
+  const { data: dashboard } = useQuery({
+    queryKey: ['user-dashboard'],
+    queryFn: getUserDashboard,
+    staleTime: 60_000,
+  });
 
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -254,6 +265,43 @@ export default function DashboardPage() {
           <p className="dashboard-page__subtitle">
             Bienvenido a su escritorio jurídico inteligente.
           </p>
+
+          {dashboard && (
+            <div className="dashboard-page__stats">
+              <div className="dashboard-page__stat">
+                <FolderOpen className="dashboard-page__stat-icon" />
+                <div className="dashboard-page__stat-body">
+                  <span className="dashboard-page__stat-value">{dashboard.casos_activos}</span>
+                  <span className="dashboard-page__stat-label">Casos activos</span>
+                </div>
+              </div>
+              <div className="dashboard-page__stat">
+                <MessageSquare className="dashboard-page__stat-icon" />
+                <div className="dashboard-page__stat-body">
+                  <span className="dashboard-page__stat-value">{dashboard.sesiones_chat_30d}</span>
+                  <span className="dashboard-page__stat-label">Sesiones (30 días)</span>
+                </div>
+              </div>
+              {dashboard.documentos_recientes.length > 0 && (
+                <div className="dashboard-page__stat">
+                  <Database className="dashboard-page__stat-icon" />
+                  <div className="dashboard-page__stat-body">
+                    <span className="dashboard-page__stat-value">
+                      {dashboard.documentos_recientes.length}
+                    </span>
+                    <span className="dashboard-page__stat-label">Documentos recientes</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {puedeVerReporte && (
+            <Link to="/reportes" className="dashboard-page__report-btn">
+              <BarChart3 size={16} />
+              Ver reporte de actividad
+            </Link>
+          )}
         </div>
       )}
 

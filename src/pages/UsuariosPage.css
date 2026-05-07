@@ -337,41 +337,72 @@
   height: 16px;
 }
 
-/* Estado toggle */
+/* Estado toggle (switch + label) */
 
-.usuarios-table__estado-btn {
-  display: flex;
+.usuarios-table__switch {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: none;
-  border-radius: 6px;
+  gap: 0.5rem;
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  user-select: none;
 }
 
-.usuarios-table__estado-btn--active {
-  color: #16a34a;
+.usuarios-table__switch-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
 }
 
-.usuarios-table__estado-btn--active:hover {
-  background-color: #f0fdf4;
+.usuarios-table__switch-track {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background-color: #cbd5e1;
+  transition: background-color 0.18s ease;
+  flex-shrink: 0;
 }
 
-.usuarios-table__estado-btn--inactive {
-  color: #94a3b8;
+.usuarios-table__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  transition: transform 0.18s ease;
 }
 
-.usuarios-table__estado-btn--inactive:hover {
-  background-color: #f1f5f9;
+.usuarios-table__switch--on .usuarios-table__switch-track {
+  background-color: #16a34a;
+}
+
+.usuarios-table__switch--on .usuarios-table__switch-thumb {
+  transform: translateX(16px);
+}
+
+.usuarios-table__switch:hover .usuarios-table__switch-track {
+  filter: brightness(0.95);
+}
+
+.usuarios-table__switch-input:focus-visible + .usuarios-table__switch-track {
+  outline: 2px solid var(--color-primary-cobalt);
+  outline-offset: 2px;
+}
+
+.usuarios-table__switch-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: #64748b;
 }
 
-.usuarios-table__estado-btn svg {
-  width: 18px;
-  height: 18px;
+.usuarios-table__switch--on .usuarios-table__switch-label {
+  color: #16a34a;
 }
 
 /* ─── Pagination ─── */

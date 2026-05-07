@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
-  Home,
+  MessageSquare,
   FolderOpen,
   BookOpen,
   MessageSquareText,
   Database,
   Users,
-  FileCheck,
+  Library,
+  BarChart3,
   LogOut,
   ChevronUp,
-  Scale,
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { getRecentCasos } from '../api/casos';
@@ -19,6 +19,7 @@ import './DashboardLayout.css';
 
 export default function DashboardLayout() {
   const [casosOpen, setCasosOpen] = useState(true);
+  const [conocimientoOpen, setConocimientoOpen] = useState(true);
   const [recentCasos, setRecentCasos] = useState<Caso[]>([]);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
@@ -31,6 +32,12 @@ export default function DashboardLayout() {
   }, []);
 
   const hasAction = (action: string) => user?.actions?.includes(action) ?? false;
+  const isAdmin = user?.rolNombre?.toLowerCase().includes('admin') ?? false;
+  const showConocimientoGroup =
+    hasAction('Biblioteca y consulta') ||
+    hasAction('Gestión de documentos para la base de conocimiento') ||
+    hasAction('Gestión de prompts');
+  const showReportes = hasAction('Informes y reportes') || isAdmin;
 
   return (
     <div className="dashboard-layout">
@@ -38,8 +45,8 @@ export default function DashboardLayout() {
       <aside className="sidebar">
         {/* Logo */}
         <div className="sidebar__logo">
-          <Scale className="sidebar__logo-icon" />
-          <span className="sidebar__logo-text">Kantuta AI</span>
+          <span className="sidebar__logo-text">Kantuta</span>
+          <span className="sidebar__logo-badge">AI</span>
         </div>
 
         {/* Navegación */}
@@ -51,8 +58,8 @@ export default function DashboardLayout() {
               `sidebar__nav-item ${isActive ? 'sidebar__nav-item--active' : ''}`
             }
           >
-            <Home className="sidebar__nav-icon" />
-            <span className="sidebar__nav-label">Inicio</span>
+            <MessageSquare className="sidebar__nav-icon" />
+            <span className="sidebar__nav-label">Consulta por chat</span>
           </NavLink>
 
           {/* Gestión de casos (expandible) */}
@@ -102,25 +109,58 @@ export default function DashboardLayout() {
             </>
           )}
 
-          {hasAction('Biblioteca y consulta') && (
-            <NavLink to="/biblioteca" className="sidebar__nav-item">
-              <BookOpen className="sidebar__nav-icon" />
-              <span className="sidebar__nav-label">Biblioteca y consulta</span>
-            </NavLink>
-          )}
+          {/* Base de Conocimiento Jurídico (agrupa biblioteca + documentos + prompts) */}
+          {showConocimientoGroup && (
+            <>
+              <button
+                className="sidebar__nav-item"
+                onClick={() => setConocimientoOpen(!conocimientoOpen)}
+              >
+                <Library className="sidebar__nav-icon" />
+                <span className="sidebar__nav-label">Base de Conocimiento Jurídico</span>
+                <ChevronUp
+                  className={`sidebar__nav-chevron ${conocimientoOpen ? 'sidebar__nav-chevron--open' : ''}`}
+                />
+              </button>
 
-          {hasAction('Gestión de prompts') && (
-            <NavLink to="/prompts" className="sidebar__nav-item">
-              <MessageSquareText className="sidebar__nav-icon" />
-              <span className="sidebar__nav-label">Gestión de prompts</span>
-            </NavLink>
-          )}
-
-          {hasAction('Gestión de documentos para la base de conocimiento') && (
-            <NavLink to="/base_de_conocimiento" className="sidebar__nav-item">
-              <Database className="sidebar__nav-icon" />
-              <span className="sidebar__nav-label">Base de conocimiento</span>
-            </NavLink>
+              {conocimientoOpen && (
+                <div className="sidebar__subnav-group">
+                  {hasAction('Biblioteca y consulta') && (
+                    <NavLink
+                      to="/biblioteca"
+                      className={({ isActive }) =>
+                        `sidebar__nav-item sidebar__nav-item--nested ${isActive ? 'sidebar__nav-item--active' : ''}`
+                      }
+                    >
+                      <BookOpen className="sidebar__nav-icon" />
+                      <span className="sidebar__nav-label">Biblioteca y consulta</span>
+                    </NavLink>
+                  )}
+                  {hasAction('Gestión de documentos para la base de conocimiento') && (
+                    <NavLink
+                      to="/base_de_conocimiento"
+                      className={({ isActive }) =>
+                        `sidebar__nav-item sidebar__nav-item--nested ${isActive ? 'sidebar__nav-item--active' : ''}`
+                      }
+                    >
+                      <Database className="sidebar__nav-icon" />
+                      <span className="sidebar__nav-label">Base de conocimiento</span>
+                    </NavLink>
+                  )}
+                  {hasAction('Gestión de prompts') && (
+                    <NavLink
+                      to="/prompts"
+                      className={({ isActive }) =>
+                        `sidebar__nav-item sidebar__nav-item--nested ${isActive ? 'sidebar__nav-item--active' : ''}`
+                      }
+                    >
+                      <MessageSquareText className="sidebar__nav-icon" />
+                      <span className="sidebar__nav-label">Gestión de prompts</span>
+                    </NavLink>
+                  )}
+                </div>
+              )}
+            </>
           )}
 
           {hasAction('Gestión de usuarios') && (
@@ -130,12 +170,17 @@ export default function DashboardLayout() {
             </NavLink>
           )}
 
-          {/* {hasAction('Revisión de documentos generados') && (
-            <NavLink to="/revision" className="sidebar__nav-item">
-              <FileCheck className="sidebar__nav-icon" />
-              <span className="sidebar__nav-label">Auditorías de Casos</span>
+          {showReportes && (
+            <NavLink
+              to="/reportes"
+              className={({ isActive }) =>
+                `sidebar__nav-item ${isActive ? 'sidebar__nav-item--active' : ''}`
+              }
+            >
+              <BarChart3 className="sidebar__nav-icon" />
+              <span className="sidebar__nav-label">Informes y reportes</span>
             </NavLink>
-          )} */}
+          )}
         </nav>
 
         {/* Parte inferior */}
@@ -149,7 +194,9 @@ export default function DashboardLayout() {
           </button>
 
           <div className="sidebar__user">
-            <div className="sidebar__user-avatar" />
+            <div className="sidebar__user-avatar">
+              {(user?.nombre?.trim()?.[0] ?? '?').toUpperCase()}
+            </div>
             <div className="sidebar__user-info">
               <span className="sidebar__user-name">
                 {user?.nombre ?? 'Usuario'}

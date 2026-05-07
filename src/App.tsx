@@ -6,11 +6,10 @@ import CasoDetailPage from './pages/CasoDetailPage';
 import ChatPage from './pages/ChatPage';
 import BibliotecaPage from './pages/BibliotecaPage';
 import UsuariosPage from './pages/UsuariosPage';
-import AuditoriaCasosPage from './pages/AuditoriaCasosPage';
-import ResumenAuditoriaPage from './pages/ResumenAuditoriaPage';
 import GestionPromptsPage from './pages/GestionPromptsPage';
 import EditorPromptPage from './pages/EditorPromptPage';
 import BaseConocimientoPage from './pages/BaseConocimientoPage';
+import ReportePage from './pages/ReportePage';
 import DashboardLayout from './layouts/DashboardLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
 
@@ -34,11 +33,10 @@ function App() {
           <Route path="/casos/:casoId/chat/:sessionId" element={<ChatPage />} />
           <Route path="/biblioteca" element={<BibliotecaPage />} />
           <Route path="/admin/users" element={<UsuariosPage />} />
-          <Route path="/revision" element={<AuditoriaCasosPage />} />
-          <Route path="/revision/:casoNumero/resumen" element={<ResumenAuditoriaPage />} />
           <Route path="/prompts" element={<GestionPromptsPage />} />
           <Route path="/prompts/:idPrompt/editar" element={<EditorPromptPage />} />
           <Route path="/base_de_conocimiento" element={<BaseConocimientoPage />} />
+          <Route path="/reportes" element={<ReportePage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

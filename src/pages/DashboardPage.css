@@ -32,6 +32,72 @@
   color: #64748b;
 }
 
+/* ─── Stats chips (hero) ─── */
+
+.dashboard-page__stats {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.dashboard-page__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1rem;
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  min-width: 150px;
+  text-align: left;
+}
+
+.dashboard-page__stat-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--color-primary-cobalt);
+  flex-shrink: 0;
+}
+
+.dashboard-page__stat-body {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.dashboard-page__stat-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dashboard-page__stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.dashboard-page__report-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding: 0.55rem 1.1rem;
+  background-color: var(--color-primary-cobalt);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s, transform 0.15s;
+}
+
+.dashboard-page__report-btn:hover {
+  background-color: #6E0A1E;
+  transform: translateY(-1px);
+}
+
 /* ─── Messages area (when chatting) ─── */
 
 .dashboard-page--chatting {
@@ -106,7 +172,7 @@
   height: 40px;
   border: none;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary-cobalt) 0%, #4f55c7 100%);
+  background: linear-gradient(135deg, var(--color-primary-cobalt) 0%, #B8324B 100%);
   color: #fff;
   cursor: pointer;
   flex-shrink: 0;

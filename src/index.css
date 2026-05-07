@@ -2,7 +2,7 @@
 
 :root {
   /* --- COLORES BASE DE INTERFAZ (DARK DEFAULT) --- */
-  --color-sidebar-bg: #0B1120;
+  --color-sidebar-bg: #8B0F2C;
   /* Azul casi negro */
   --color-background-app: #161B2B;
   /* Gris Azulado Profundo */
@@ -10,8 +10,8 @@
   /* Slate Medio */
 
   /* --- COLORES DE MARCA Y ACCIÓN --- */
-  --color-primary-cobalt: #3B48CC;
-  /* Azul Cobalto */
+  --color-primary-cobalt: #8B0F2C;
+  /* Carmesí Oscuro */
   --color-accent-gold: #C5A065;
   /* Dorado Muted */
   --color-accent-gold-hover: #D6B685;
