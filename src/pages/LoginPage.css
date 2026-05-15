@@ -28,30 +28,60 @@
   justify-content: center;
 }
 
-.login-branding__icon-wrapper {
+.login-branding__logo-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 1rem;
+}
+
+.login-branding__logo {
   width: 72px;
-  height: 72px;
-  border-radius: 16px;
-  border: 1px solid rgba(197, 160, 101, 0.35);
-  background-color: rgba(197, 160, 101, 0.08);
+  height: auto;
+  object-fit: contain;
 }
 
-.login-branding__icon {
-  width: 36px;
-  height: 36px;
-  color: var(--color-accent-gold);
+.login-branding__logo-titles {
+  display: flex;
+  flex-direction: column;
 }
 
-.login-branding__title {
-  margin-top: 1.25rem;
-  font-family: var(--font-sans);
-  font-size: 1.875rem;
-  font-weight: 700;
+.login-branding__name {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.login-branding__name-text {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 600;
   color: var(--color-text-primary);
-  letter-spacing: -0.025em;
+  letter-spacing: 0.005em;
+  line-height: 1;
+}
+
+.login-branding__name-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 0.35rem;
+  border-radius: 10px;
+  background-color: #fff;
+  color: var(--color-primary-cobalt);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+
+.login-branding__subtitle {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.02em;
 }
 
 .login-branding__tagline {
@@ -109,8 +139,8 @@
 
 .login-mobile-logo {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 0.75rem;
   margin-bottom: 2rem;
 }
 
@@ -120,28 +150,54 @@
   }
 }
 
-.login-mobile-logo__icon-wrapper {
+.login-mobile-logo__img {
+  width: 48px;
+  height: auto;
+  object-fit: contain;
+}
+
+.login-mobile-logo__titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-mobile-logo__name {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  border: 1px solid var(--border-subtle);
-  background-color: var(--color-surface-card);
+  gap: 0.3rem;
 }
 
-.login-mobile-logo__icon {
-  width: 28px;
-  height: 28px;
-  color: var(--color-accent-gold);
-}
-
-.login-mobile-logo__title {
-  margin-top: 0.75rem;
-  font-size: 1.5rem;
-  font-weight: 700;
+.login-mobile-logo__name-text {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 600;
   color: #0f172a;
+  line-height: 1;
+}
+
+.login-mobile-logo__name-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 0.3rem;
+  border-radius: 8px;
+  background-color: #fff;
+  color: var(--color-primary-cobalt);
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  border: 1px solid var(--color-primary-cobalt);
+}
+
+.login-mobile-logo__subtitle {
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.02em;
 }
 
 /* Encabezado */

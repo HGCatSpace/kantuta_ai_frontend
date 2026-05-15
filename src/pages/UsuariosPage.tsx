@@ -48,12 +48,14 @@ function formatFecha(isoDate: string): string {
   }
 }
 
-function getInitials(nombreCompleto: string): string {
-  const parts = nombreCompleto.trim().split(/\s+/);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }
-  return (parts[0]?.[0] ?? '?').toUpperCase();
+function getNombreCompleto(u: { nombres: string; apellido_paterno: string; apellido_materno: string }): string {
+  return `${u.nombres} ${u.apellido_paterno} ${u.apellido_materno}`;
+}
+
+function getInitials(u: { nombres: string; apellido_paterno: string }): string {
+  const first = u.nombres.trim()[0] ?? '?';
+  const last = u.apellido_paterno.trim()[0] ?? '';
+  return (first + last).toUpperCase();
 }
 
 function getRolDotClass(rolNombre?: string | null): string {
@@ -106,7 +108,9 @@ function AnadirUsuarioModal({
   onSubmit: (data: UsuarioCreate, selectedActionIds: number[]) => void;
   isLoading: boolean;
 }) {
-  const [nombreCompleto, setNombreCompleto] = useState('');
+  const [nombres, setNombres] = useState('');
+  const [apellidoPaterno, setApellidoPaterno] = useState('');
+  const [apellidoMaterno, setApellidoMaterno] = useState('');
   const [nombreUsuario, setNombreUsuario] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -125,12 +129,16 @@ function AnadirUsuarioModal({
     });
   };
 
+  const canSubmit = nombres.trim() && apellidoPaterno.trim() && apellidoMaterno.trim() && nombreUsuario.trim() && email.trim() && password.trim();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nombreCompleto.trim() || !nombreUsuario.trim() || !email.trim() || !password.trim()) return;
+    if (!canSubmit) return;
     onSubmit(
       {
-        nombre_completo: nombreCompleto.trim(),
+        nombres: nombres.trim(),
+        apellido_paterno: apellidoPaterno.trim(),
+        apellido_materno: apellidoMaterno.trim(),
         nombre_de_usuario: nombreUsuario.trim(),
         email: email.trim(),
         password,
@@ -151,13 +159,35 @@ function AnadirUsuarioModal({
         </div>
         <form onSubmit={handleSubmit}>
           <div className="usuarios-modal__field">
-            <label htmlFor="add-nombre-completo">Nombre Completo</label>
+            <label htmlFor="add-nombres">Nombres</label>
             <input
-              id="add-nombre-completo"
+              id="add-nombres"
               type="text"
-              value={nombreCompleto}
-              onChange={(e) => setNombreCompleto(e.target.value)}
-              placeholder="Ej: Juan Pérez Mamani"
+              value={nombres}
+              onChange={(e) => setNombres(e.target.value)}
+              placeholder="Ej: Juan Carlos"
+              required
+            />
+          </div>
+          <div className="usuarios-modal__field">
+            <label htmlFor="add-apellido-paterno">Apellido Paterno</label>
+            <input
+              id="add-apellido-paterno"
+              type="text"
+              value={apellidoPaterno}
+              onChange={(e) => setApellidoPaterno(e.target.value)}
+              placeholder="Ej: Pérez"
+              required
+            />
+          </div>
+          <div className="usuarios-modal__field">
+            <label htmlFor="add-apellido-materno">Apellido Materno</label>
+            <input
+              id="add-apellido-materno"
+              type="text"
+              value={apellidoMaterno}
+              onChange={(e) => setApellidoMaterno(e.target.value)}
+              placeholder="Ej: Mamani"
               required
             />
           </div>
@@ -242,7 +272,7 @@ function AnadirUsuarioModal({
             <button
               type="submit"
               className="usuarios-modal__submit"
-              disabled={isLoading || !nombreCompleto.trim() || !nombreUsuario.trim() || !email.trim() || !password.trim()}
+              disabled={isLoading || !canSubmit}
             >
               {isLoading ? <Loader2 className="spin" /> : 'Crear usuario'}
             </button>
@@ -270,7 +300,9 @@ function ModificarUsuarioModal({
   onSubmit: (data: UsuarioUpdate, checkedActionIds: number[]) => void;
   isLoading: boolean;
 }) {
-  const [nombreCompleto, setNombreCompleto] = useState(usuario.nombre_completo);
+  const [nombres, setNombres] = useState(usuario.nombres);
+  const [apellidoPaterno, setApellidoPaterno] = useState(usuario.apellido_paterno);
+  const [apellidoMaterno, setApellidoMaterno] = useState(usuario.apellido_materno);
   const [email, setEmail] = useState(usuario.email);
   const [password, setPassword] = useState('');
   const [idRol, setIdRol] = useState<number | ''>(usuario.id_rol ?? '');
@@ -300,7 +332,9 @@ function ModificarUsuarioModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const data: UsuarioUpdate = {};
-    if (nombreCompleto.trim() !== usuario.nombre_completo) data.nombre_completo = nombreCompleto.trim();
+    if (nombres.trim() !== usuario.nombres) data.nombres = nombres.trim();
+    if (apellidoPaterno.trim() !== usuario.apellido_paterno) data.apellido_paterno = apellidoPaterno.trim();
+    if (apellidoMaterno.trim() !== usuario.apellido_materno) data.apellido_materno = apellidoMaterno.trim();
     if (email.trim() !== usuario.email) data.email = email.trim();
     if (password) data.password = password;
     if ((idRol !== '' ? idRol : null) !== usuario.id_rol) data.id_rol = idRol !== '' ? idRol : null;
@@ -319,12 +353,32 @@ function ModificarUsuarioModal({
         </div>
         <form onSubmit={handleSubmit}>
           <div className="usuarios-modal__field">
-            <label htmlFor="edit-nombre-completo">Nombre Completo</label>
+            <label htmlFor="edit-nombres">Nombres</label>
             <input
-              id="edit-nombre-completo"
+              id="edit-nombres"
               type="text"
-              value={nombreCompleto}
-              onChange={(e) => setNombreCompleto(e.target.value)}
+              value={nombres}
+              onChange={(e) => setNombres(e.target.value)}
+              required
+            />
+          </div>
+          <div className="usuarios-modal__field">
+            <label htmlFor="edit-apellido-paterno">Apellido Paterno</label>
+            <input
+              id="edit-apellido-paterno"
+              type="text"
+              value={apellidoPaterno}
+              onChange={(e) => setApellidoPaterno(e.target.value)}
+              required
+            />
+          </div>
+          <div className="usuarios-modal__field">
+            <label htmlFor="edit-apellido-materno">Apellido Materno</label>
+            <input
+              id="edit-apellido-materno"
+              type="text"
+              value={apellidoMaterno}
+              onChange={(e) => setApellidoMaterno(e.target.value)}
               required
             />
           </div>
@@ -501,10 +555,12 @@ export default function UsuariosPage() {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
-        (u) =>
-          u.nombre_completo.toLowerCase().includes(q) ||
-          u.email.toLowerCase().includes(q) ||
-          u.nombre_de_usuario.toLowerCase().includes(q)
+        (u) => {
+          const fullName = getNombreCompleto(u).toLowerCase();
+          return fullName.includes(q) ||
+            u.email.toLowerCase().includes(q) ||
+            u.nombre_de_usuario.toLowerCase().includes(q);
+        }
       );
     }
 
@@ -522,7 +578,7 @@ export default function UsuariosPage() {
     if (sortMode === 'fecha_desc') {
       result.sort((a, b) => new Date(b.fecha_registro).getTime() - new Date(a.fecha_registro).getTime());
     } else {
-      result.sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo, 'es'));
+      result.sort((a, b) => a.apellido_paterno.localeCompare(b.apellido_paterno, 'es') || a.apellido_materno.localeCompare(b.apellido_materno, 'es') || a.nombres.localeCompare(b.nombres, 'es'));
     }
 
     return result;
@@ -745,10 +801,10 @@ export default function UsuariosPage() {
                       <td>
                         <div className="usuarios-table__user-cell">
                           <div className="usuarios-table__avatar">
-                            {getInitials(usuario.nombre_completo)}
+                            {getInitials(usuario)}
                           </div>
                           <div className="usuarios-table__user-info">
-                            <div className="usuarios-table__user-name">{usuario.nombre_completo}</div>
+                            <div className="usuarios-table__user-name">{getNombreCompleto(usuario)}</div>
                             <div className="usuarios-table__user-email">{usuario.email}</div>
                           </div>
                         </div>

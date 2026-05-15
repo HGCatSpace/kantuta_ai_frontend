@@ -222,6 +222,7 @@ export default function CasosPage() {
     mutationFn: (data: CasoCreate) => createCaso(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['casos'] });
+      queryClient.invalidateQueries({ queryKey: ['recent-casos'] });
       setShowModal(false);
     },
   });
@@ -230,6 +231,7 @@ export default function CasosPage() {
     mutationFn: ({ id, data }: { id: number; data: CasoUpdate }) => updateCaso(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['casos'] });
+      queryClient.invalidateQueries({ queryKey: ['recent-casos'] });
       setEditingCaso(null);
     },
   });
@@ -238,6 +240,7 @@ export default function CasosPage() {
     mutationFn: (id: number) => archiveCaso(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['casos'] });
+      queryClient.invalidateQueries({ queryKey: ['recent-casos'] });
     },
   });
 

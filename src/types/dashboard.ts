@@ -9,7 +9,9 @@ export interface DocumentoReciente {
 
 export interface UserDashboard {
   id: number;
-  nombre_completo: string;
+  nombres: string;
+  apellido_paterno: string;
+  apellido_materno: string;
   email: string;
   rol: string | null;
   casos_activos: number;

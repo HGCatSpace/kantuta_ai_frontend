@@ -19,7 +19,7 @@
 
 .dashboard-page__greeting {
   font-family: var(--font-serif);
-  font-size: 2.75rem;
+  font-size: 3rem;
   font-weight: 700;
   color: #0f172a;
   letter-spacing: -0.02em;
@@ -28,7 +28,7 @@
 
 .dashboard-page__subtitle {
   margin-top: 0.5rem;
-  font-size: 1rem;
+  font-size: 1.25rem;
   color: #64748b;
 }
 
@@ -203,7 +203,7 @@
 
 @media (max-width: 640px) {
   .dashboard-page__greeting {
-    font-size: 2rem;
+    font-size: 2.25rem;
   }
 
   .dashboard-page:not(.dashboard-page--chatting) .dashboard-page__input-bar {

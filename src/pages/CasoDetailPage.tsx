@@ -191,13 +191,7 @@ export default function CasoDetailPage() {
 
     return (
         <div className="caso-detail">
-            {/* Breadcrumb */}
-            <div className="caso-detail__breadcrumb">
-                <NavLink to="/casos" style={{ color: 'inherit', textDecoration: 'none' }}>
-                    Gestión de Casos
-                </NavLink>
-                {' / '}Detalle
-            </div>
+            
 
             {/* Header */}
             <div className="caso-detail__header">

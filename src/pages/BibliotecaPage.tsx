@@ -178,11 +178,6 @@ export default function BibliotecaPage() {
   return (
     <div className="biblioteca-page">
       {/* Breadcrumb */}
-      <nav className="biblioteca-page__breadcrumb">
-        <Link to="/dashboard">Home</Link>
-        <span>/</span>
-        <span>Biblioteca</span>
-      </nav>
 
       {/* Header */}
       <div className="biblioteca-page__header">

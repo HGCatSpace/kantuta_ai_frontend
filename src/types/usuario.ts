@@ -16,7 +16,9 @@ export interface Usuario {
   id: number;
   nombre_de_usuario: string;
   email: string;
-  nombre_completo: string;
+  nombres: string;
+  apellido_paterno: string;
+  apellido_materno: string;
   activo: ActiveUserEnum;
   id_rol: number | null;
   fecha_registro: string;
@@ -28,13 +30,17 @@ export interface Usuario {
 export interface UsuarioCreate {
   nombre_de_usuario: string;
   email: string;
-  nombre_completo: string;
+  nombres: string;
+  apellido_paterno: string;
+  apellido_materno: string;
   password: string;
   id_rol?: number | null;
 }
 
 export interface UsuarioUpdate {
-  nombre_completo?: string;
+  nombres?: string;
+  apellido_paterno?: string;
+  apellido_materno?: string;
   email?: string;
   password?: string;
   activo?: ActiveUserEnum;

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   MessageSquare,
   FolderOpen,
@@ -13,6 +14,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import logoImg from '../assets/logo.png';
 import { getRecentCasos } from '../api/casos';
 import type { Caso } from '../types/caso';
 import './DashboardLayout.css';
@@ -20,16 +22,14 @@ import './DashboardLayout.css';
 export default function DashboardLayout() {
   const [casosOpen, setCasosOpen] = useState(true);
   const [conocimientoOpen, setConocimientoOpen] = useState(true);
-  const [recentCasos, setRecentCasos] = useState<Caso[]>([]);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    getRecentCasos()
-      .then(setRecentCasos)
-      .catch(() => setRecentCasos([]));
-  }, []);
+  const { data: recentCasos = [] } = useQuery({
+    queryKey: ['recent-casos'],
+    queryFn: getRecentCasos,
+  });
 
   const hasAction = (action: string) => user?.actions?.includes(action) ?? false;
   const isAdmin = user?.rolNombre?.toLowerCase().includes('admin') ?? false;
@@ -45,8 +45,11 @@ export default function DashboardLayout() {
       <aside className="sidebar">
         {/* Logo */}
         <div className="sidebar__logo">
-          <span className="sidebar__logo-text">Kantuta</span>
-          <span className="sidebar__logo-badge">AI</span>
+          <img src={logoImg} alt="Kantuta AI" className="sidebar__logo-img" />
+          <div className="sidebar__logo-text-group">
+            <span className="sidebar__logo-text">Kantuta</span>
+            <span className="sidebar__logo-badge">AI</span>
+          </div>
         </div>
 
         {/* Navegación */}
@@ -99,10 +102,10 @@ export default function DashboardLayout() {
                     to="/casos"
                     end
                     className={({ isActive }) =>
-                      `sidebar__nav-item ${isActive ? 'sidebar__nav-item--active' : ''}`
+                      `sidebar__subnav-item sidebar__subnav-more ${isActive ? 'sidebar__subnav-item--active' : ''}`
                     }
                   >
-                    <button className="sidebar__subnav-more">Ver Todos</button>
+                    Ver Todos
                   </NavLink>
                 </div>
               )}

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Scale, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { login } from '../api/auth';
 import { useAuthStore } from '../store/authStore';
+import logoImg from '../assets/logo.png';
 import './LoginPage.css';
 
 interface LoginFormData {
@@ -60,10 +61,16 @@ export default function LoginPage() {
       {/* Panel Izquierdo - Branding */}
       <div className="login-branding">
         <div className="login-branding__content">
-          <div className="login-branding__icon-wrapper">
-            <Scale className="login-branding__icon" />
+          <div className="login-branding__logo-row">
+            <img src={logoImg} alt="Kantuta AI" className="login-branding__logo" />
+            <div className="login-branding__logo-titles">
+              <div className="login-branding__name">
+                <span className="login-branding__name-text">Kantuta</span>
+                <span className="login-branding__name-badge">AI</span>
+              </div>
+              <p className="login-branding__subtitle">Asistente Virtual Jurídico Kantuta S.C.</p>
+            </div>
           </div>
-          <h1 className="login-branding__title">Kantuta AI</h1>
           <p className="login-branding__tagline">
             "Elevando la excelencia jurídica a través de la inteligencia artificial"
           </p>
@@ -79,10 +86,14 @@ export default function LoginPage() {
           <div className="login-form-panel__inner">
             {/* Logo móvil */}
             <div className="login-mobile-logo">
-              <div className="login-mobile-logo__icon-wrapper">
-                <Scale className="login-mobile-logo__icon" />
+              <img src={logoImg} alt="Kantuta AI" className="login-mobile-logo__img" />
+              <div className="login-mobile-logo__titles">
+                <div className="login-mobile-logo__name">
+                  <span className="login-mobile-logo__name-text">Kantuta</span>
+                  <span className="login-mobile-logo__name-badge">AI</span>
+                </div>
+                <p className="login-mobile-logo__subtitle">Asistente Virtual Jurídico Kantuta S.C.</p>
               </div>
-              <h1 className="login-mobile-logo__title">Kantuta AI</h1>
             </div>
 
             <h2 className="login-heading">Bienvenido de nuevo</h2>
