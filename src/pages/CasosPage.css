@@ -360,6 +360,106 @@
   font-style: italic;
 }
 
+/* ─── Paginación ─── */
+
+.casos-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 0.25rem 0;
+  flex-wrap: wrap;
+}
+
+.casos-pagination__info {
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.casos-pagination__info strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.casos-pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.casos-pagination__page-size {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.casos-pagination__page-size select {
+  padding: 0.3125rem 0.5rem;
+  font-size: 0.8125rem;
+  font-family: var(--font-sans);
+  color: #0f172a;
+  background-color: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.casos-pagination__page-size select:focus {
+  border-color: var(--color-primary-cobalt);
+}
+
+.casos-pagination__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.casos-pagination__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #d1d5db;
+  background-color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #475569;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.casos-pagination__btn:hover:not(:disabled) {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.casos-pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.casos-pagination__btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.casos-pagination__current {
+  font-size: 0.8125rem;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.casos-pagination__current strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
 /* ─── Status (loading / error) ─── */
 
 .casos-page__status {

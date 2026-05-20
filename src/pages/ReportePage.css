@@ -262,11 +262,254 @@
   margin: 0 0 1rem;
 }
 
+/* Filtro de rango de fechas */
+
+.reporte-page__date-range {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.reporte-page__date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.reporte-page__date-field label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.reporte-page__date-field input[type="date"] {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  color: #0f172a;
+  background-color: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.reporte-page__date-field input[type="date"]:focus {
+  border-color: var(--color-primary-cobalt);
+}
+
+/* Título de sección */
+
+.reporte-page__section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 1.75rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Card comparativa (delta) */
+
+.reporte-page__card-delta {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.reporte-page__card-delta svg {
+  width: 14px;
+  height: 14px;
+}
+
+.reporte-page__card-delta--up {
+  color: #16a34a;
+}
+
+.reporte-page__card-delta--down {
+  color: #dc2626;
+}
+
+/* Tablas ranking */
+
+.reporte-page__rankings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.reporte-page__ranking {
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.reporte-page__ranking-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 0.75rem;
+}
+
+.reporte-page__ranking-empty {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.reporte-page__ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.reporte-page__ranking-table th {
+  text-align: left;
+  padding: 0.5rem 0.625rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.reporte-page__ranking-table td {
+  padding: 0.5rem 0.625rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.reporte-page__ranking-table tr:last-child td {
+  border-bottom: none;
+}
+
+.reporte-page__ranking-pos {
+  width: 30px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.reporte-page__ranking-count {
+  font-weight: 700;
+  color: var(--color-primary-cobalt);
+  text-align: right;
+}
+
+.reporte-page__ranking-table th:last-child {
+  text-align: right;
+}
+
 .reporte-page__footer {
   font-size: 0.8125rem;
   color: #94a3b8;
   text-align: right;
   margin: 0.75rem 0 0;
+}
+
+/* KPI cards (sin comparativo, énfasis visual distinto) */
+
+.reporte-page__card--kpi {
+  border-color: rgba(139, 15, 44, 0.18);
+  background: linear-gradient(180deg, #fff 0%, rgba(139, 15, 44, 0.025) 100%);
+}
+
+.reporte-page__card-icon--kpi {
+  background-color: rgba(47, 107, 79, 0.10);
+  color: #2F6B4F;
+}
+
+/* Ícono en el título de sección (ej. casos abandonados) */
+
+.reporte-page__section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reporte-page__section-icon {
+  width: 18px;
+  height: 18px;
+  color: #C5A065;
+}
+
+/* Tabla de casos sin actividad */
+
+.reporte-page__inactive {
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.reporte-page__inactive-empty {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #2F6B4F;
+  font-weight: 500;
+}
+
+.reporte-page__inactive-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.reporte-page__inactive-table th {
+  text-align: left;
+  padding: 0.5rem 0.625rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.reporte-page__inactive-table td {
+  padding: 0.625rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.reporte-page__inactive-table tr:last-child td {
+  border-bottom: none;
+}
+
+.reporte-page__inactive-table th:last-child,
+.reporte-page__inactive-table td:last-child {
+  text-align: right;
+}
+
+/* Badge de días inactivos */
+
+.reporte-page__days-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: rgba(148, 163, 184, 0.18);
+  color: #475569;
+  white-space: nowrap;
+}
+
+.reporte-page__days-badge--warning {
+  background-color: rgba(197, 160, 101, 0.20);
+  color: #8a6024;
+}
+
+.reporte-page__days-badge--critical {
+  background-color: rgba(139, 15, 44, 0.12);
+  color: var(--color-primary-cobalt);
 }
 
 /* Spinner */

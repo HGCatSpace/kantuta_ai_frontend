@@ -23,12 +23,23 @@ import {
   RefreshCw,
   AlertCircle,
   FileDown,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Briefcase,
+  MessageCircle,
+  UserCheck,
+  FileUp,
+  Activity,
+  CheckCircle2,
+  AlarmClock,
 } from 'lucide-react';
 import { isAxiosError } from 'axios';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { getReporteActividad } from '../api/reportes';
 import type { CategoriaConteo, ReporteActividad } from '../types/reporte';
+import logoImg from '../assets/logo.png';
 import './ReportePage.css';
 
 // Paleta categórica: tonos joya complementarios al carmesí de marca
@@ -66,6 +77,11 @@ function totalDe(items: CategoriaConteo[]): number {
   return items.reduce((acc, it) => acc + it.total, 0);
 }
 
+/** Devuelve YYYY-MM-DD para un Date */
+function toDateStr(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
 function MetricCard({
   icon,
   label,
@@ -89,13 +105,118 @@ function MetricCard({
   );
 }
 
+function ComparativeCard({
+  icon,
+  label,
+  value,
+  previousValue,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  previousValue: number;
+}) {
+  const diff = value - previousValue;
+  const isUp = diff > 0;
+  const isDown = diff < 0;
+
+  return (
+    <div className="reporte-page__card">
+      <div className="reporte-page__card-icon">{icon}</div>
+      <div className="reporte-page__card-body">
+        <span className="reporte-page__card-label">{label}</span>
+        <span className="reporte-page__card-value">{value}</span>
+        <span className={`reporte-page__card-delta ${isUp ? 'reporte-page__card-delta--up' : isDown ? 'reporte-page__card-delta--down' : ''}`}>
+          {isUp ? <TrendingUp /> : isDown ? <TrendingDown /> : <Minus />}
+          {isUp ? '+' : ''}{diff} vs periodo anterior ({previousValue})
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function KpiCard({
+  icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  hint?: string;
+}) {
+  return (
+    <div className="reporte-page__card reporte-page__card--kpi">
+      <div className="reporte-page__card-icon reporte-page__card-icon--kpi">{icon}</div>
+      <div className="reporte-page__card-body">
+        <span className="reporte-page__card-label">{label}</span>
+        <span className="reporte-page__card-value">{value}</span>
+        {hint && <span className="reporte-page__card-hint">{hint}</span>}
+      </div>
+    </div>
+  );
+}
+
+function RankingTable({
+  title,
+  items,
+  nameHeader,
+  countHeader,
+}: {
+  title: string;
+  items: { nombre: string; total: number }[];
+  nameHeader: string;
+  countHeader: string;
+}) {
+  return (
+    <div className="reporte-page__ranking">
+      <h3 className="reporte-page__ranking-title">{title}</h3>
+      {items.length === 0 ? (
+        <p className="reporte-page__ranking-empty">Sin datos en este rango</p>
+      ) : (
+        <table className="reporte-page__ranking-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{nameHeader}</th>
+              <th>{countHeader}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item, idx) => (
+              <tr key={idx}>
+                <td className="reporte-page__ranking-pos">{idx + 1}</td>
+                <td>{item.nombre}</td>
+                <td className="reporte-page__ranking-count">{item.total}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
 export default function ReportePage() {
   const reportRef = useRef<HTMLDivElement>(null);
   const [exportingPdf, setExportingPdf] = useState(false);
 
+  // Rango de fecha: por defecto últimos 7 días
+  const today = useMemo(() => new Date(), []);
+  const defaultDesde = useMemo(() => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - 7);
+    return toDateStr(d);
+  }, [today]);
+  const defaultHasta = useMemo(() => toDateStr(today), [today]);
+
+  const [desde, setDesde] = useState(defaultDesde);
+  const [hasta, setHasta] = useState(defaultHasta);
+
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery<ReporteActividad>({
-    queryKey: ['reporte-actividad'],
-    queryFn: getReporteActividad,
+    queryKey: ['reporte-actividad', desde, hasta],
+    queryFn: () => getReporteActividad(desde, hasta),
     retry: false,
   });
 
@@ -115,13 +236,26 @@ export default function ReportePage() {
     if (!reportRef.current || !data || exportingPdf) return;
     setExportingPdf(true);
     try {
+      // Precargar logo como base64
+      const logoBase64 = await new Promise<string>((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = img.naturalWidth;
+          c.height = img.naturalHeight;
+          c.getContext('2d')!.drawImage(img, 0, 0);
+          resolve(c.toDataURL('image/png'));
+        };
+        img.src = logoImg;
+      });
+
       const canvas = await html2canvas(reportRef.current, {
         scale: 2,
         backgroundColor: '#ffffff',
         useCORS: true,
         logging: false,
         onclone: (clonedDoc) => {
-          // Mostrar cabecera del PDF (oculta en la UI live)
           const pdfHeader = clonedDoc.querySelector<HTMLElement>('.reporte-page__pdf-header');
           if (pdfHeader) pdfHeader.style.display = 'block';
         },
@@ -131,19 +265,75 @@ export default function ReportePage() {
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 8;
+      const footerHeight = 14;
       const usableWidth = pageWidth - margin * 2;
+      const usableHeight = pageHeight - margin - footerHeight;
       const imgHeight = (canvas.height * usableWidth) / canvas.width;
 
+      /** Dibuja el pie de página en la página actual */
+      const drawFooter = () => {
+        const footerY = pageHeight - footerHeight;
+        // Línea roja
+        pdf.setDrawColor(139, 15, 44); // #8B0F2C
+        pdf.setLineWidth(0.6);
+        pdf.line(margin, footerY, pageWidth - margin, footerY);
+
+        // Logo (izquierda)
+        const logoH = 7;
+        const logoW = logoH; // cuadrado
+        const logoY = footerY + 3.5;
+        pdf.addImage(logoBase64, 'PNG', margin, logoY, logoW, logoH);
+
+        // Texto "Kantuta" (al lado del logo) — calculamos ancho ANTES de cambiar font size
+        const textBaselineY = logoY + logoH * 0.7;
+        const textX = margin + logoW + 2.5;
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(10);
+        pdf.setTextColor(139, 15, 44);
+        const kantutaText = 'Kantuta';
+        const kantutaWidth = pdf.getTextWidth(kantutaText);
+        pdf.text(kantutaText, textX, textBaselineY);
+
+        // Badge "AI" (fondo blanco + borde rojo, como en el sidebar)
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(6.5);
+        const aiText = 'AI';
+        const aiTextWidth = pdf.getTextWidth(aiText);
+        const aiPadX = 1;
+        const aiBoxW = aiTextWidth + aiPadX * 2;
+        const aiBoxH = 3.2;
+        const aiBoxX = textX + kantutaWidth + 1.5;
+        const aiBoxY = textBaselineY - aiBoxH + 0.6;
+        pdf.setDrawColor(139, 15, 44);
+        pdf.setFillColor(255, 255, 255);
+        pdf.setLineWidth(0.2);
+        pdf.roundedRect(aiBoxX, aiBoxY, aiBoxW, aiBoxH, 0.5, 0.5, 'FD');
+        pdf.setTextColor(139, 15, 44);
+        pdf.text(aiText, aiBoxX + aiPadX, aiBoxY + aiBoxH - 0.7);
+
+        // "Kantuta Group S.C." (derecha)
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(100, 116, 139);
+        const firmaText = 'Kantuta Group S.C.';
+        const firmaWidth = pdf.getTextWidth(firmaText);
+        pdf.text(firmaText, pageWidth - margin - firmaWidth, textBaselineY);
+      };
+
+      // Primera página
       let heightLeft = imgHeight;
       let position = margin;
       pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgHeight);
-      heightLeft -= pageHeight - margin * 2;
+      heightLeft -= usableHeight;
+      drawFooter();
 
+      // Páginas siguientes
       while (heightLeft > 0) {
         pdf.addPage();
         position = margin - (imgHeight - heightLeft);
         pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgHeight);
-        heightLeft -= pageHeight - margin * 2;
+        heightLeft -= usableHeight;
+        drawFooter();
       }
 
       const fecha = new Date().toISOString().slice(0, 10);
@@ -186,6 +376,30 @@ export default function ReportePage() {
         </div>
       </div>
 
+      {/* Filtro de rango de fechas */}
+      <div className="reporte-page__date-range">
+        <div className="reporte-page__date-field">
+          <label htmlFor="reporte-desde">Desde</label>
+          <input
+            id="reporte-desde"
+            type="date"
+            value={desde}
+            max={hasta}
+            onChange={(e) => setDesde(e.target.value)}
+          />
+        </div>
+        <div className="reporte-page__date-field">
+          <label htmlFor="reporte-hasta">Hasta</label>
+          <input
+            id="reporte-hasta"
+            type="date"
+            value={hasta}
+            min={desde}
+            onChange={(e) => setHasta(e.target.value)}
+          />
+        </div>
+      </div>
+
       {isLoading && (
         <div className="reporte-page__status">
           <Loader2 className="spin" /> Cargando reporte de actividad...
@@ -223,7 +437,7 @@ export default function ReportePage() {
 
       {data && !isLoading && (
         <div ref={reportRef} className="reporte-page__capture">
-          {/* Encabezado del reporte (visible en el PDF exportado) */}
+          {/* Encabezado del PDF */}
           <div className="reporte-page__pdf-header">
             <h2 className="reporte-page__pdf-title">Reporte de Actividad — Kantuta AI</h2>
             <p className="reporte-page__pdf-subtitle">
@@ -231,7 +445,7 @@ export default function ReportePage() {
             </p>
           </div>
 
-          {/* Tarjetas de métricas */}
+          {/* Tarjetas globales */}
           <div className="reporte-page__cards">
             <MetricCard
               icon={<Users />}
@@ -261,7 +475,126 @@ export default function ReportePage() {
             />
           </div>
 
-          {/* Gráficos */}
+          {/* Métricas comparativas del rango vs periodo anterior */}
+          <div className="reporte-page__section-title">Métricas comparativas del rango seleccionado</div>
+          <div className="reporte-page__cards">
+            <ComparativeCard
+              icon={<Briefcase />}
+              label="Casos creados"
+              value={data.casos_creados}
+              previousValue={data.casos_creados_anterior}
+            />
+            <ComparativeCard
+              icon={<MessageCircle />}
+              label="Sesiones de chat iniciadas"
+              value={data.sesiones_chat_creadas}
+              previousValue={data.sesiones_chat_creadas_anterior}
+            />
+            <ComparativeCard
+              icon={<UserCheck />}
+              label="Usuarios activos"
+              value={data.usuarios_activos}
+              previousValue={data.usuarios_activos_anterior}
+            />
+            <ComparativeCard
+              icon={<FileUp />}
+              label="Documentos subidos"
+              value={data.documentos_subidos}
+              previousValue={data.documentos_subidos_anterior}
+            />
+          </div>
+
+          {/* KPIs derivados del rango */}
+          <div className="reporte-page__section-title">Indicadores del rango</div>
+          <div className="reporte-page__cards">
+            <KpiCard
+              icon={<Activity />}
+              label="Promedio de chats por caso"
+              value={data.promedio_chats_por_caso}
+              hint="Densidad de uso del asistente por caso activo"
+            />
+            <KpiCard
+              icon={<CheckCircle2 />}
+              label="Tasa de éxito de ingesta"
+              value={`${data.tasa_exito_ingesta}%`}
+              hint="Documentos completados sobre el total subido en el rango"
+            />
+          </div>
+
+          {/* Tablas comparativas */}
+          <div className="reporte-page__rankings">
+            <RankingTable
+              title="Casos por usuario"
+              items={data.casos_por_usuario}
+              nameHeader="Usuario"
+              countHeader="Casos"
+            />
+            <RankingTable
+              title="Chats por caso"
+              items={data.chats_por_caso}
+              nameHeader="Caso"
+              countHeader="Chats"
+            />
+            <RankingTable
+              title="Chats por usuario"
+              items={data.chats_por_usuario}
+              nameHeader="Usuario"
+              countHeader="Chats"
+            />
+          </div>
+
+          {/* Casos sin actividad reciente (independiente del rango) */}
+          <div className="reporte-page__section-title">
+            <AlarmClock className="reporte-page__section-icon" />
+            Casos abandonados ({data.dias_inactividad_umbral}+ días sin actividad)
+          </div>
+          <div className="reporte-page__inactive">
+            {data.casos_sin_actividad.length === 0 ? (
+              <p className="reporte-page__inactive-empty">
+                Ningún caso ABIERTO supera el umbral de inactividad. Bien hecho.
+              </p>
+            ) : (
+              <table className="reporte-page__inactive-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Caso</th>
+                    <th>Última actividad</th>
+                    <th>Días inactivo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.casos_sin_actividad.map((caso, idx) => (
+                    <tr key={caso.id_caso}>
+                      <td className="reporte-page__ranking-pos">{idx + 1}</td>
+                      <td>{caso.titulo}</td>
+                      <td>
+                        {caso.ultima_actividad
+                          ? dateFormatter.format(new Date(caso.ultima_actividad))
+                          : 'Sin chats registrados'}
+                      </td>
+                      <td>
+                        <span
+                          className={`reporte-page__days-badge ${
+                            caso.dias_inactivo >= 30
+                              ? 'reporte-page__days-badge--critical'
+                              : caso.dias_inactivo >= 21
+                              ? 'reporte-page__days-badge--warning'
+                              : ''
+                          }`}
+                        >
+                          {caso.dias_inactivo} días
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Gráficos globales */}
+          <div className="reporte-page__section-title">Distribución general</div>
           <div className="reporte-page__charts">
             <div className="reporte-page__chart-box">
               <h2 className="reporte-page__chart-title">Usuarios por rol</h2>

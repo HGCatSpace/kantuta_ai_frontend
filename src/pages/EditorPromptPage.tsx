@@ -310,9 +310,7 @@ export default function EditorPromptPage() {
                       </div>
                       <span className="ep-section__label">{label}</span>
                     </div>
-                    <span className="ep-section__variable-chip">
-                      <Braces /> Variable
-                    </span>
+
                   </div>
                   <textarea
                     className="ep-section__textarea"

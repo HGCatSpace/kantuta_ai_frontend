@@ -1,12 +1,24 @@
 export const CategoriaBiblioteca = {
-  CONTRATOS: 'Contratos',
-  LITIGIOS: 'Litigios',
-  CORPORATIVO: 'Corporativo',
-  LABORAL: 'Laboral',
-  OTROS: 'Otros',
+  NORMATIVA_SUSTANTIVA: 'Normativa sustantiva',
+  NORMATIVA_ADJETIVA: 'Normativa adjetiva (procesal)',
+  NORMATIVA_GENERAL: 'Normativa general / principios',
+  MATERIAL_REFERENCIA: 'Material de referencia',
 } as const;
 
 export type CategoriaBiblioteca = (typeof CategoriaBiblioteca)[keyof typeof CategoriaBiblioteca];
+
+/** Etiquetas cortas para mostrar en tablas/dropdowns sin ocupar tanto espacio. */
+export const CATEGORIA_LABEL: Record<string, string> = {
+  'Normativa sustantiva': 'Sustantiva',
+  'Normativa adjetiva (procesal)': 'Adjetiva',
+  'Normativa general / principios': 'General',
+  'Material de referencia': 'Referencia',
+};
+
+export function categoriaLabel(cat: string | null | undefined): string {
+  if (!cat) return '—';
+  return CATEGORIA_LABEL[cat] ?? cat;
+}
 
 export const IconoArchivo = {
   PDF: 'pdf',
@@ -36,6 +48,8 @@ export interface DocumentoConocimiento {
   fecha_creacion: string;
   ultima_modificacion: string;
   nombre_uploader: string | null;
+  chunks_procesados: number | null;
+  chunks_totales: number | null;
 }
 
 export interface DocumentoCreate {

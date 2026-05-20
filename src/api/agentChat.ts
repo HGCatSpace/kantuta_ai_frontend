@@ -108,11 +108,14 @@ export async function streamMessage(
 
 /**
  * Stream tokens from the general chat endpoint.
+ * Accepts an optional system_prompt to switch the agent's "mode"
+ * (rol/tarea/alcances/contexto + temperatura + documentos vinculados).
  */
 export async function streamGeneralMessage(
     content: string,
     threadId: string,
     onToken: (token: string) => void,
+    system_prompt?: SystemPrompt | Record<string, unknown> | null,
 ): Promise<void> {
     const url = new URL(`${API_BASE}/chat-agent/general/stream`);
     url.searchParams.set('thread_id', threadId);
@@ -120,7 +123,7 @@ export async function streamGeneralMessage(
     const res = await fetch(url.toString(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, system_prompt }),
     });
 
     if (!res.ok) {

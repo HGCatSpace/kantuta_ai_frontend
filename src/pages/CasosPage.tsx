@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, FileText, Trash2, Loader2, X, SlidersHorizontal, ArrowUpDown, Pencil } from 'lucide-react';
+import { Search, Plus, FileText, Trash2, Loader2, X, SlidersHorizontal, ArrowUpDown, Pencil, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCasos, createCaso, archiveCaso, updateCaso } from '../api/casos';
 import { useAuthStore } from '../store/authStore';
@@ -198,6 +198,8 @@ export default function CasosPage() {
   const [sortMode, setSortMode] = useState<SortMode>('fecha_desc');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const filterRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -285,6 +287,18 @@ export default function CasosPage() {
     }
     return result;
   }, [casos, searchQuery, filterEstado, sortMode]);
+
+  // Reset a la página 1 cuando cambian filtros/búsqueda/orden
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterEstado, sortMode, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCasos.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const startIdx = (safePage - 1) * pageSize;
+  const paginatedCasos = filteredCasos.slice(startIdx, startIdx + pageSize);
+
+  const goToPage = (p: number) => setCurrentPage(Math.min(Math.max(1, p), totalPages));
 
   return (
     <div className="casos-page">
@@ -387,6 +401,7 @@ export default function CasosPage() {
 
       {/* Tabla */}
       {!isLoading && !isError && (
+        <>
         <table className="casos-table">
           <thead>
             <tr>
@@ -405,7 +420,7 @@ export default function CasosPage() {
                 </td>
               </tr>
             ) : (
-              filteredCasos.map((caso) => (
+              paginatedCasos.map((caso) => (
                 <tr key={caso.id_caso} onClick={() => navigate(`/casos/${caso.id_caso}`)} style={{ cursor: 'pointer' }}>
                   <td>
                     <div className="casos-table__nombre">{caso.titulo}</div>
@@ -452,6 +467,56 @@ export default function CasosPage() {
             )}
           </tbody>
         </table>
+
+        {/* Paginación */}
+        {filteredCasos.length > 0 && (
+          <div className="casos-pagination">
+            <div className="casos-pagination__info">
+              Mostrando <strong>{startIdx + 1}</strong>–<strong>{Math.min(startIdx + pageSize, filteredCasos.length)}</strong> de{' '}
+              <strong>{filteredCasos.length}</strong>
+            </div>
+
+            <div className="casos-pagination__controls">
+              <label className="casos-pagination__page-size">
+                Filas por página:
+                <select
+                  value={pageSize}
+                  onChange={(e) => setPageSize(Number(e.target.value))}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </label>
+
+              <div className="casos-pagination__nav">
+                <button
+                  className="casos-pagination__btn"
+                  onClick={() => goToPage(safePage - 1)}
+                  disabled={safePage === 1}
+                  aria-label="Página anterior"
+                >
+                  <ChevronLeft />
+                </button>
+
+                <span className="casos-pagination__current">
+                  Página <strong>{safePage}</strong> de <strong>{totalPages}</strong>
+                </span>
+
+                <button
+                  className="casos-pagination__btn"
+                  onClick={() => goToPage(safePage + 1)}
+                  disabled={safePage === totalPages}
+                  aria-label="Página siguiente"
+                >
+                  <ChevronRight />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        </>
       )}
 
       {confirmArchive && (

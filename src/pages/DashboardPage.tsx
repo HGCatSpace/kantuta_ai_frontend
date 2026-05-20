@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowUp, BarChart3, ChevronDown, Database, FileText, FolderOpen, Loader2, MessageSquare, Scale, Trash2, User, X } from 'lucide-react';
+import { ArrowUp, ChevronDown, Database, FileText, Loader2, Scale, Sparkles, Trash2, User, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getGeneralState, streamGeneralMessage } from '../api/agentChat';
 import { getDocumentos, getDownloadUrl } from '../api/documentos';
-import { getUserDashboard } from '../api/dashboard';
+import { getActiveSystemPrompts } from '../api/systemPrompts';
 import type { AgentMessage, ContextItem } from '../api/agentChat';
+import type { SystemPrompt } from '../types/systemPrompt';
 import ReactMarkdown from 'react-markdown';
 import DocumentPreviewModal from '../components/DocumentPreviewModal';
 import './ChatPage.css';
@@ -47,22 +47,20 @@ function getSaludo(): string {
   return 'Buenas noches';
 }
 
-
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
   const token = useAuthStore((s) => s.token);
   const nombre = user?.nombre?.split(' ')[0] ?? 'Usuario';
   const queryClient = useQueryClient();
 
-  const isAdmin = user?.rolNombre?.toLowerCase().includes('admin') ?? false;
-  const puedeVerReporte = (user?.actions?.includes('Informes y reportes') ?? false) || isAdmin;
-
-  const { data: dashboard } = useQuery({
-    queryKey: ['user-dashboard'],
-    queryFn: getUserDashboard,
-    staleTime: 60_000,
+  // Prompts activos del módulo de Gestión de Prompts
+  const { data: prompts } = useQuery({
+    queryKey: ['system-prompts-active'],
+    queryFn: getActiveSystemPrompts,
+    staleTime: 5 * 60 * 1000,
   });
 
+  const [activePrompt, setActivePrompt] = useState<SystemPrompt | null>(null);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [messages, setMessages] = useState<ParsedMessage[]>([]);
@@ -73,7 +71,17 @@ export default function DashboardPage() {
   const [threadId, setThreadId] = useState<string>(() => crypto.randomUUID());
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const chatting = messages.length > 0 || sending;
+
+  const handlePickPrompt = (prompt: SystemPrompt) => {
+    setActivePrompt(prompt);
+    inputRef.current?.focus();
+  };
+
+  const handleClearPrompt = () => {
+    setActivePrompt(null);
+  };
 
   const toggleContextItem = (idx: number) => {
     setExpandedContextItems((prev) => {
@@ -117,6 +125,7 @@ export default function DashboardPage() {
     setShowContextPanel(false);
     setExpandedContextItems(new Set());
     setThreadId(crypto.randomUUID());
+    setActivePrompt(null);
   };
 
   useEffect(() => {
@@ -138,16 +147,21 @@ export default function DashboardPage() {
     ]);
 
     try {
-      await streamGeneralMessage(userContent, threadId, (token) => {
-        setMessages((prev) => {
-          const updated = [...prev];
-          const last = updated[updated.length - 1];
-          if (last && last.role === 'assistant') {
-            updated[updated.length - 1] = { ...last, content: last.content + token };
-          }
-          return updated;
-        });
-      });
+      await streamGeneralMessage(
+        userContent,
+        threadId,
+        (token) => {
+          setMessages((prev) => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            if (last && last.role === 'assistant') {
+              updated[updated.length - 1] = { ...last, content: last.content + token };
+            }
+            return updated;
+          });
+        },
+        activePrompt,
+      );
 
       // Re-fetch state to sync with server checkpoint
       const freshState = await getGeneralState(threadId);
@@ -266,41 +280,33 @@ export default function DashboardPage() {
             Bienvenido a su escritorio jurídico inteligente.
           </p>
 
-          {dashboard && (
-            <div className="dashboard-page__stats">
-              <div className="dashboard-page__stat">
-                <FolderOpen className="dashboard-page__stat-icon" />
-                <div className="dashboard-page__stat-body">
-                  <span className="dashboard-page__stat-value">{dashboard.casos_activos}</span>
-                  <span className="dashboard-page__stat-label">Casos activos</span>
-                </div>
+          {prompts && prompts.length > 0 && (
+            <div className="dashboard-page__suggestions">
+              <span className="dashboard-page__suggestions-hint">
+                Elige un modo del asistente
+              </span>
+              <div className="dashboard-page__suggestions-grid">
+                {prompts.map((p) => {
+                  const isActive = activePrompt?.id_prompt === p.id_prompt;
+                  return (
+                    <button
+                      key={p.id_prompt}
+                      type="button"
+                      className={`dashboard-page__suggestion${isActive ? ' dashboard-page__suggestion--active' : ''}`}
+                      onClick={() => handlePickPrompt(p)}
+                    >
+                      <span className="dashboard-page__suggestion-icon">
+                        <Sparkles />
+                      </span>
+                      <span className="dashboard-page__suggestion-title">{p.nombre}</span>
+                      {p.descripcion && (
+                        <span className="dashboard-page__suggestion-prompt">{p.descripcion}</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-              <div className="dashboard-page__stat">
-                <MessageSquare className="dashboard-page__stat-icon" />
-                <div className="dashboard-page__stat-body">
-                  <span className="dashboard-page__stat-value">{dashboard.sesiones_chat_30d}</span>
-                  <span className="dashboard-page__stat-label">Sesiones (30 días)</span>
-                </div>
-              </div>
-              {dashboard.documentos_recientes.length > 0 && (
-                <div className="dashboard-page__stat">
-                  <Database className="dashboard-page__stat-icon" />
-                  <div className="dashboard-page__stat-body">
-                    <span className="dashboard-page__stat-value">
-                      {dashboard.documentos_recientes.length}
-                    </span>
-                    <span className="dashboard-page__stat-label">Documentos recientes</span>
-                  </div>
-                </div>
-              )}
             </div>
-          )}
-
-          {puedeVerReporte && (
-            <Link to="/reportes" className="dashboard-page__report-btn">
-              <BarChart3 size={16} />
-              Ver reporte de actividad
-            </Link>
           )}
         </div>
       )}
@@ -367,6 +373,21 @@ export default function DashboardPage() {
 
       {/* Input bar — always visible */}
       <div className="dashboard-page__input-bar">
+        {activePrompt && (
+          <div className="dashboard-page__mode-banner">
+            <Sparkles size={14} />
+            <span className="dashboard-page__mode-label">Modo activo:</span>
+            <span className="dashboard-page__mode-name">{activePrompt.nombre}</span>
+            <button
+              type="button"
+              className="dashboard-page__mode-clear"
+              onClick={handleClearPrompt}
+              title="Quitar modo"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
         <div className="dashboard-page__input-row">
           {chatting && (
             <button
@@ -378,6 +399,7 @@ export default function DashboardPage() {
             </button>
           )}
           <input
+            ref={inputRef}
             className="dashboard-page__input"
             type="text"
             placeholder="Haz una pregunta a Kantuta AI..."

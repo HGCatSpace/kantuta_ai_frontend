@@ -321,20 +321,20 @@
   flex-shrink: 0;
 }
 
-.biblioteca-table__cat-dot--contratos {
-  background-color: #22c55e;
-}
-
-.biblioteca-table__cat-dot--litigios {
-  background-color: #ef4444;
-}
-
-.biblioteca-table__cat-dot--corporativo {
+.biblioteca-table__cat-dot--sustantiva {
   background-color: #8B0F2C;
 }
 
-.biblioteca-table__cat-dot--otros {
-  background-color: #94a3b8;
+.biblioteca-table__cat-dot--adjetiva {
+  background-color: #1E3A5F;
+}
+
+.biblioteca-table__cat-dot--general {
+  background-color: #2F6B4F;
+}
+
+.biblioteca-table__cat-dot--referencia {
+  background-color: #C5A065;
 }
 
 /* Dates */

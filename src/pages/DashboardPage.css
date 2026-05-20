@@ -32,70 +32,139 @@
   color: #64748b;
 }
 
-/* ─── Stats chips (hero) ─── */
+/* ─── Sugerencias de prompts (hero) ─── */
 
-.dashboard-page__stats {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.75rem;
-  flex-wrap: wrap;
-  justify-content: center;
+.dashboard-page__suggestions {
+  margin-top: 2.25rem;
+  width: 100%;
+  max-width: 880px;
 }
 
-.dashboard-page__stat {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.625rem 1rem;
+.dashboard-page__suggestions-hint {
+  display: block;
+  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.dashboard-page__suggestions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.875rem;
+}
+
+.dashboard-page__suggestion {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 0.4rem;
+  padding: 1rem 1.125rem;
   background-color: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  min-width: 150px;
-  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s;
 }
 
-.dashboard-page__stat-icon {
-  width: 18px;
-  height: 18px;
-  color: var(--color-primary-cobalt);
-  flex-shrink: 0;
+.dashboard-page__suggestion:hover {
+  border-color: var(--color-primary-cobalt);
+  box-shadow: 0 6px 18px rgba(139, 15, 44, 0.08);
+  transform: translateY(-1px);
 }
 
-.dashboard-page__stat-body {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
+.dashboard-page__suggestion--active {
+  border-color: var(--color-primary-cobalt);
+  background-color: rgba(139, 15, 44, 0.04);
+  box-shadow: 0 0 0 3px rgba(139, 15, 44, 0.10);
 }
 
-.dashboard-page__stat-value {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #0f172a;
-}
+/* Banner del modo activo (encima del input) */
 
-.dashboard-page__stat-label {
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
-.dashboard-page__report-btn {
+.dashboard-page__mode-banner {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 1.25rem;
-  padding: 0.55rem 1.1rem;
-  background-color: var(--color-primary-cobalt);
-  color: #fff;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background-color 0.15s, transform 0.15s;
+  padding: 0.4rem 0.5rem 0.4rem 0.75rem;
+  margin: 0 0 0.5rem;
+  background-color: rgba(139, 15, 44, 0.08);
+  border: 1px solid rgba(139, 15, 44, 0.20);
+  border-radius: 999px;
+  color: var(--color-primary-cobalt);
+  font-size: 0.8125rem;
+  width: fit-content;
 }
 
-.dashboard-page__report-btn:hover {
-  background-color: #6E0A1E;
-  transform: translateY(-1px);
+.dashboard-page__mode-label {
+  font-weight: 500;
+  color: #64748b;
+}
+
+.dashboard-page__mode-name {
+  font-weight: 600;
+}
+
+.dashboard-page__mode-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--color-primary-cobalt);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.dashboard-page__mode-clear:hover {
+  background-color: rgba(139, 15, 44, 0.15);
+}
+
+.dashboard-page__suggestion-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: rgba(139, 15, 44, 0.10);
+  color: var(--color-primary-cobalt);
+  margin-bottom: 0.15rem;
+}
+
+.dashboard-page__suggestion-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dashboard-page__suggestion-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.dashboard-page__suggestion-prompt {
+  font-size: 0.8125rem;
+  color: #64748b;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 720px) {
+  .dashboard-page__suggestions-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ─── Messages area (when chatting) ─── */

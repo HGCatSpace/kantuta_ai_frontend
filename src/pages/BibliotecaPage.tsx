@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getDocumentos, getDocumentosCount, deleteDocumento, getDownloadUrl } from '../api/documentos';
-import { CategoriaBiblioteca } from '../types/documento';
+import { CategoriaBiblioteca, categoriaLabel } from '../types/documento';
 import type { DocumentoConocimiento } from '../types/documento';
 import './BibliotecaPage.css';
 import { useAuthStore } from '../store/authStore';
@@ -41,10 +41,10 @@ function formatFecha(isoDate: string): string {
 const CATEGORIAS = Object.values(CategoriaBiblioteca);
 
 const CATEGORIA_DOT_CLASS: Record<string, string> = {
-  Contratos: 'contratos',
-  Litigios: 'litigios',
-  Corporativo: 'corporativo',
-  Otros: 'otros',
+  'Normativa sustantiva': 'sustantiva',
+  'Normativa adjetiva (procesal)': 'adjetiva',
+  'Normativa general / principios': 'general',
+  'Material de referencia': 'referencia',
 };
 
 export default function BibliotecaPage() {
@@ -226,7 +226,7 @@ export default function BibliotecaPage() {
                       className={`biblioteca-page__dropdown-item${categoriaFilter === c ? ' biblioteca-page__dropdown-item--active' : ''}`}
                       onClick={() => { setCategoriaFilter(c); setShowFilterDropdown(false); }}
                     >
-                      {c}
+                      {categoriaLabel(c)}
                     </button>
                   ))}
                 </div>
@@ -311,9 +311,9 @@ export default function BibliotecaPage() {
                     <td>
                       <div className="biblioteca-table__categoria">
                         <span
-                          className={`biblioteca-table__cat-dot biblioteca-table__cat-dot--${CATEGORIA_DOT_CLASS[doc.categoria] ?? 'otros'}`}
+                          className={`biblioteca-table__cat-dot biblioteca-table__cat-dot--${CATEGORIA_DOT_CLASS[doc.categoria] ?? 'referencia'}`}
                         />
-                        {doc.categoria}
+                        {categoriaLabel(doc.categoria)}
                       </div>
                     </td>
                     <td className="biblioteca-table__fecha">{formatFecha(doc.fecha_creacion)}</td>

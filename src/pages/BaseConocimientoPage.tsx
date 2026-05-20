@@ -28,7 +28,7 @@ import {
   updateDocumento,
   getDownloadUrl,
 } from '../api/documentos';
-import { CategoriaBiblioteca, EstadoIndexacion } from '../types/documento';
+import { CategoriaBiblioteca, EstadoIndexacion, categoriaLabel } from '../types/documento';
 import type { DocumentoConocimiento, DocumentoUpdate } from '../types/documento';
 import { useAuthStore } from '../store/authStore';
 import { searchKnowledgeBase, getKnowledgeSources } from '../api/knowledgeSearch';
@@ -59,11 +59,10 @@ function formatFileSize(bytes: number): string {
 }
 
 const CATEGORIA_DOT_CLASS: Record<string, string> = {
-  Contratos: 'contratos',
-  Litigios: 'litigios',
-  Corporativo: 'corporativo',
-  Laboral: 'laboral',
-  Otros: 'otros',
+  'Normativa sustantiva': 'sustantiva',
+  'Normativa adjetiva (procesal)': 'adjetiva',
+  'Normativa general / principios': 'general',
+  'Material de referencia': 'referencia',
 };
 
 const CATEGORIAS = Object.values(CategoriaBiblioteca);
@@ -85,7 +84,7 @@ function SubirDocumentoModal({
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [titulo, setTitulo] = useState('');
-  const [categoria, setCategoria] = useState<string>(CategoriaBiblioteca.OTROS);
+  const [categoria, setCategoria] = useState<string>(CategoriaBiblioteca.MATERIAL_REFERENCIA);
   const [descripcion, setDescripcion] = useState('');
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -94,7 +93,7 @@ function SubirDocumentoModal({
   const reset = () => {
     setFile(null);
     setTitulo('');
-    setCategoria(CategoriaBiblioteca.OTROS);
+    setCategoria(CategoriaBiblioteca.MATERIAL_REFERENCIA);
     setDescripcion('');
   };
 
@@ -160,7 +159,7 @@ function SubirDocumentoModal({
           <p className="bc-modal__dropzone-text">
             Arrastra un archivo aquí o haz clic para seleccionar
           </p>
-          <p className="bc-modal__dropzone-hint">PDF, DOCX, TXT — máx. 50 MB</p>
+          <p className="bc-modal__dropzone-hint">PDF, DOCX — máx. 50 MB</p>
           <input
             ref={inputRef}
             type="file"
@@ -204,7 +203,7 @@ function SubirDocumentoModal({
             <label className="bc-modal__label">Categoría</label>
             <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
               {CATEGORIAS.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>{categoriaLabel(c)}</option>
               ))}
             </select>
           </div>
@@ -288,7 +287,7 @@ function EditarDocumentoModal({
           <div className="bc-modal__field bc-modal__field--flex">
             <label className="bc-modal__label">Categoría</label>
             <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
-              {CATEGORIAS.map((c) => <option key={c} value={c}>{c}</option>)}
+              {CATEGORIAS.map((c) => <option key={c} value={c}>{categoriaLabel(c)}</option>)}
             </select>
           </div>
         </div>
@@ -504,7 +503,7 @@ function ProbarPanel({ open, onClose }: { open: boolean; onClose: () => void }) 
                 </div>
                 <div className="bc-detail-popup__header-right">
                   <span className={`bc-panel__result-badge ${badgeClass(ePct)}`}>
-                    {ePct}% relevancia
+                    {ePct}% de coincidencia
                   </span>
                   <button className="bc-detail-popup__close" onClick={() => setExpandedChunk(null)}>
                     <X />
@@ -607,7 +606,7 @@ export default function BaseConocimientoPage() {
       const hasProcessing = docs.some(
         (d) => d.estado_indexacion === EstadoIndexacion.PROCESANDO || d.estado_indexacion === EstadoIndexacion.PENDIENTE,
       );
-      return hasProcessing ? 3000 : false;
+      return hasProcessing ? 1500 : false;
     },
   });
 
@@ -729,7 +728,7 @@ export default function BaseConocimientoPage() {
                   className={`bc-page__dropdown-item${categoriaFilter === c ? ' bc-page__dropdown-item--active' : ''}`}
                   onClick={() => { setCategoriaFilter(c); setShowFilterDropdown(false); setPage(0); }}
                 >
-                  {c}
+                  {categoriaLabel(c)}
                 </button>
               ))}
             </div>
@@ -817,17 +816,46 @@ export default function BaseConocimientoPage() {
                     <td>
                       <div className="bc-table__categoria">
                         <span
-                          className={`bc-table__cat-dot bc-table__cat-dot--${CATEGORIA_DOT_CLASS[doc.categoria] ?? 'otros'}`}
+                          className={`bc-table__cat-dot bc-table__cat-dot--${CATEGORIA_DOT_CLASS[doc.categoria] ?? 'referencia'}`}
                         />
-                        {doc.categoria}
+                        {categoriaLabel(doc.categoria)}
                       </div>
                     </td>
                     <td>
-                      {isProcessing && (
-                        <span className="bc-table__status-badge bc-table__status-badge--processing">
-                          <Loader2 className="bc-spin" /> Indexando…
-                        </span>
-                      )}
+                      {isProcessing && (() => {
+                        const total = doc.chunks_totales ?? 0;
+                        const done = doc.chunks_procesados ?? 0;
+                        const hasProgress = total > 0;
+                        const pct = hasProgress ? Math.min(100, Math.round((done / total) * 100)) : 0;
+                        return (
+                          <div className="bc-table__status-indexing">
+                            <span className="bc-table__status-badge bc-table__status-badge--processing">
+                              <Loader2 className="bc-spin" /> Indexando…
+                              {hasProgress && <span className="bc-table__status-pct">{pct}%</span>}
+                            </span>
+                            <div
+                              className={`bc-table__progress${hasProgress ? '' : ' bc-table__progress--indeterminate'}`}
+                              role="progressbar"
+                              aria-valuemin={0}
+                              aria-valuemax={hasProgress ? 100 : undefined}
+                              aria-valuenow={hasProgress ? pct : undefined}
+                              aria-label="Progreso de indexación"
+                            >
+                              {hasProgress ? (
+                                <div
+                                  className="bc-table__progress-bar bc-table__progress-bar--determinate"
+                                  style={{ width: `${pct}%` }}
+                                />
+                              ) : (
+                                <div className="bc-table__progress-bar" />
+                              )}
+                            </div>
+                            {hasProgress && (
+                              <span className="bc-table__progress-count">{done} / {total} fragmentos</span>
+                            )}
+                          </div>
+                        );
+                      })()}
                       {isReady && (
                         <span className="bc-table__status-badge bc-table__status-badge--ready">
                           <CheckCircle2 /> Listo
@@ -845,7 +873,13 @@ export default function BaseConocimientoPage() {
                       <div className="bc-table__actions">
                         <button
                           className="bc-table__action-btn"
-                          title={isReady ? 'Editar' : 'Esperando indexación…'}
+                          title={
+                            isReady
+                              ? 'Editar'
+                              : isErrorState
+                                ? 'No se puede editar un documento con error'
+                                : 'Esperando indexación…'
+                          }
                           onClick={() => setEditingDoc(doc)}
                           disabled={!isReady}
                         >
@@ -853,17 +887,29 @@ export default function BaseConocimientoPage() {
                         </button>
                         <button
                           className="bc-table__action-btn"
-                          title={isReady ? 'Descargar' : 'Esperando indexación…'}
+                          title={
+                            isProcessing
+                              ? 'Esperando indexación…'
+                              : isErrorState
+                                ? 'Descargar archivo original'
+                                : 'Descargar'
+                          }
                           onClick={() => handleDownload(doc)}
-                          disabled={!isReady}
+                          disabled={isProcessing}
                         >
                           <Download />
                         </button>
                         <button
                           className="bc-table__action-btn bc-table__action-btn--delete"
-                          title={isReady ? 'Eliminar' : 'Esperando indexación…'}
+                          title={
+                            isProcessing
+                              ? 'Esperando indexación…'
+                              : isErrorState
+                                ? 'Eliminar documento con error'
+                                : 'Eliminar'
+                          }
                           onClick={() => handleDelete(doc)}
-                          disabled={!isReady}
+                          disabled={isProcessing}
                         >
                           <Trash2 />
                         </button>
