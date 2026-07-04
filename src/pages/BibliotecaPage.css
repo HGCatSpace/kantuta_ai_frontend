@@ -407,33 +407,57 @@
   gap: 0.25rem;
 }
 
-.biblioteca-page__pagination-btn {
+.biblioteca-page__page-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
+  min-width: 32px;
   height: 32px;
-  border: 1px solid #d1d5db;
-  background: #fff;
+  padding: 0 0.5rem;
+  font-size: 0.8125rem;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  color: #475569;
+  background: none;
+  border: 1px solid transparent;
   border-radius: 6px;
   cursor: pointer;
-  color: #475569;
-  transition: background-color 0.15s, border-color 0.15s;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.biblioteca-page__pagination-btn:hover:not(:disabled) {
+.biblioteca-page__page-btn:hover:not(:disabled) {
   background-color: #f1f5f9;
-  border-color: #94a3b8;
+  border-color: #e2e8f0;
 }
 
-.biblioteca-page__pagination-btn:disabled {
+.biblioteca-page__page-btn--active {
+  color: #fff;
+  background-color: var(--color-sidebar-bg);
+  border-color: var(--color-sidebar-bg);
+}
+
+.biblioteca-page__page-btn--active:hover {
+  background-color: #161B2B;
+}
+
+.biblioteca-page__page-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }
 
-.biblioteca-page__pagination-btn svg {
+.biblioteca-page__page-btn svg {
   width: 14px;
   height: 14px;
+}
+
+.biblioteca-page__page-ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  font-size: 0.8125rem;
+  color: #94a3b8;
 }
 
 /* ─── Spin animation ─── */

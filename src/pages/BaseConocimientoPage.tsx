@@ -452,7 +452,7 @@ function ProbarPanel({ open, onClose }: { open: boolean; onClose: () => void }) 
                     </div>
                     <div className="bc-panel__result-header-actions">
                       <span className={`bc-panel__result-badge ${badgeClass(pct)}`}>
-                        {pct}%
+                        {pct}% coincidencia
                       </span>
                       <button
                         className="bc-panel__expand-btn"

@@ -250,14 +250,53 @@ export default function ReportePage() {
         img.src = logoImg;
       });
 
+      const scale = 2;
+      // Posiciones (en px de canvas) donde es seguro cortar entre páginas: el
+      // borde superior de cada bloque/gráfico, para no partir una tarjeta a la
+      // mitad. Se miden sobre el clon (donde el encabezado del PDF sí es visible).
+      let breakOffsetsPx: number[] = [];
+
       const canvas = await html2canvas(reportRef.current, {
-        scale: 2,
+        scale,
         backgroundColor: '#ffffff',
         useCORS: true,
         logging: false,
         onclone: (clonedDoc) => {
           const pdfHeader = clonedDoc.querySelector<HTMLElement>('.reporte-page__pdf-header');
           if (pdfHeader) pdfHeader.style.display = 'block';
+
+          const root = clonedDoc.querySelector<HTMLElement>('.reporte-page__capture');
+          if (root) {
+            const rootTop = root.getBoundingClientRect().top;
+            // Unidades indivisibles, en orden. Un título de sección se "pega" al
+            // bloque que le sigue (glued) para no quedar huérfano al pie. El
+            // contenedor de gráficos se expande en sus cajas individuales.
+            const leaves: { el: HTMLElement; glued: boolean }[] = [];
+            let prevWasTitle = false;
+            Array.from(root.children).forEach((node) => {
+              const el = node as HTMLElement;
+              if (el.classList.contains('reporte-page__charts')) {
+                const boxes = Array.from(el.children) as HTMLElement[];
+                const firstTop = boxes.length ? boxes[0].getBoundingClientRect().top : 0;
+                boxes.forEach((box) => {
+                  // La primera fila (cajas a la misma altura) se pega al título;
+                  // las filas siguientes sí pueden saltar de página.
+                  const sameRowAsFirst = Math.abs(box.getBoundingClientRect().top - firstTop) < 1;
+                  leaves.push({ el: box, glued: prevWasTitle && sameRowAsFirst });
+                });
+                prevWasTitle = false;
+              } else if (el.classList.contains('reporte-page__section-title')) {
+                leaves.push({ el, glued: false });
+                prevWasTitle = true;
+              } else {
+                leaves.push({ el, glued: prevWasTitle });
+                prevWasTitle = false;
+              }
+            });
+            breakOffsetsPx = leaves
+              .filter((u, idx) => idx > 0 && !u.glued)
+              .map((u) => (u.el.getBoundingClientRect().top - rootTop) * scale);
+          }
         },
       });
       const imgData = canvas.toDataURL('image/png');
@@ -269,10 +308,10 @@ export default function ReportePage() {
       const usableWidth = pageWidth - margin * 2;
       const usableHeight = pageHeight - margin - footerHeight;
       const imgHeight = (canvas.height * usableWidth) / canvas.width;
+      const footerY = pageHeight - footerHeight;
 
       /** Dibuja el pie de página en la página actual */
       const drawFooter = () => {
-        const footerY = pageHeight - footerHeight;
         // Línea roja
         pdf.setDrawColor(139, 15, 44); // #8B0F2C
         pdf.setLineWidth(0.6);
@@ -320,20 +359,45 @@ export default function ReportePage() {
         pdf.text(firmaText, pageWidth - margin - firmaWidth, textBaselineY);
       };
 
-      // Primera página
-      let heightLeft = imgHeight;
-      let position = margin;
-      pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgHeight);
-      heightLeft -= usableHeight;
-      drawFooter();
+      // Paginación que respeta los límites de los bloques: cada página corta en
+      // el último punto seguro que cabe en el área útil, así ningún gráfico ni
+      // tarjeta se parte entre dos páginas.
+      const totalPx = canvas.height;
+      const pxPerMm = canvas.width / usableWidth;
+      const usableHeightPx = usableHeight * pxPerMm;
+      const candidates = breakOffsetsPx
+        .filter((y) => y > 0 && y < totalPx)
+        .sort((a, b) => a - b);
 
-      // Páginas siguientes
-      while (heightLeft > 0) {
-        pdf.addPage();
-        position = margin - (imgHeight - heightLeft);
+      let topPx = 0;
+      let firstPage = true;
+      while (topPx < totalPx - 1) {
+        if (!firstPage) pdf.addPage();
+
+        const maxBottomPx = topPx + usableHeightPx;
+        // Último punto de corte seguro que cabe en esta página
+        let bottomPx = -1;
+        for (const c of candidates) {
+          if (c > topPx + 1 && c <= maxBottomPx + 0.5) bottomPx = c;
+        }
+        // Si ninguna unidad cabe (bloque más alto que una página), corte duro
+        if (bottomPx <= topPx) bottomPx = Math.min(maxBottomPx, totalPx);
+        if (bottomPx > totalPx) bottomPx = totalPx;
+
+        const sliceHeightMm = (bottomPx - topPx) / pxPerMm;
+        const position = margin - topPx / pxPerMm;
         pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgHeight);
-        heightLeft -= usableHeight;
+
+        // Máscaras: oculta lo que se desborda fuera del corte de esta página
+        pdf.setFillColor(255, 255, 255);
+        pdf.rect(0, 0, pageWidth, margin, 'F'); // arriba
+        const cutY = margin + sliceHeightMm;
+        pdf.rect(0, cutY, pageWidth, pageHeight - cutY, 'F'); // abajo + zona pie
+
         drawFooter();
+
+        topPx = bottomPx;
+        firstPage = false;
       }
 
       const fecha = new Date().toISOString().slice(0, 10);

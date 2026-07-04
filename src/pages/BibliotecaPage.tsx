@@ -38,6 +38,19 @@ function formatFecha(isoDate: string): string {
   }
 }
 
+function getPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i);
+  const pages: (number | 'ellipsis')[] = [];
+  pages.push(0);
+  if (current > 2) pages.push('ellipsis');
+  for (let i = Math.max(1, current - 1); i <= Math.min(total - 2, current + 1); i++) {
+    pages.push(i);
+  }
+  if (current < total - 3) pages.push('ellipsis');
+  pages.push(total - 1);
+  return pages;
+}
+
 const CATEGORIAS = Object.values(CategoriaBiblioteca);
 
 const CATEGORIA_DOT_CLASS: Record<string, string> = {
@@ -174,6 +187,7 @@ export default function BibliotecaPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const showingFrom = total === 0 ? 0 : page * PAGE_SIZE + 1;
   const showingTo = Math.min((page + 1) * PAGE_SIZE, total);
+  const pageNumbers = getPageNumbers(page, totalPages);
 
   return (
     <div className="biblioteca-page">
@@ -350,14 +364,27 @@ export default function BibliotecaPage() {
             </div>
             <div className="biblioteca-page__pagination-controls">
               <button
-                className="biblioteca-page__pagination-btn"
+                className="biblioteca-page__page-btn"
                 onClick={() => setPage((p) => p - 1)}
                 disabled={page === 0}
               >
                 <ChevronLeft />
               </button>
+              {pageNumbers.map((p, idx) =>
+                p === 'ellipsis' ? (
+                  <span key={`e${idx}`} className="biblioteca-page__page-ellipsis">...</span>
+                ) : (
+                  <button
+                    key={p}
+                    className={`biblioteca-page__page-btn${p === page ? ' biblioteca-page__page-btn--active' : ''}`}
+                    onClick={() => setPage(p)}
+                  >
+                    {p + 1}
+                  </button>
+                ),
+              )}
               <button
-                className="biblioteca-page__pagination-btn"
+                className="biblioteca-page__page-btn"
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page >= totalPages - 1}
               >

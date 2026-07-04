@@ -357,7 +357,7 @@ export default function EditorPromptPage() {
 
               <div className="ep-sidebar__slider-group">
                 <div className="ep-sidebar__slider-header">
-                  <span className="ep-sidebar__slider-label">Temperatura</span>
+                  <span className="ep-sidebar__slider-label">Temperatura - creatividad</span>
                   <span className="ep-sidebar__slider-value">{temperatura.toFixed(2)}</span>
                 </div>
                 <input
@@ -373,7 +373,7 @@ export default function EditorPromptPage() {
 
               <div className="ep-sidebar__slider-group">
                 <div className="ep-sidebar__slider-header">
-                  <span className="ep-sidebar__slider-label">Top K</span>
+                  <span className="ep-sidebar__slider-label">Top K - Filtro de cantidad</span>
                   <span className="ep-sidebar__slider-value">{topK.toLocaleString()}</span>
                 </div>
                 <input
@@ -389,7 +389,7 @@ export default function EditorPromptPage() {
 
               <div className="ep-sidebar__slider-group">
                 <div className="ep-sidebar__slider-header">
-                  <span className="ep-sidebar__slider-label">Top P</span>
+                  <span className="ep-sidebar__slider-label">Top P - Filtro de probabilidad</span>
                   <span className="ep-sidebar__slider-value">{topP.toFixed(2)}</span>
                 </div>
                 <input
